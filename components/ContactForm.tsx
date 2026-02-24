@@ -16,6 +16,7 @@ export function ContactForm() {
         body: JSON.stringify({
           name: fd.get("name"),
           phone: fd.get("phone"),
+          email: fd.get("email"),
           message: fd.get("message"),
         }),
       });
@@ -37,7 +38,6 @@ export function ContactForm() {
         <input
           type="text"
           name="name"
-          required
           className="border border-ink/15 px-4 py-3 text-base outline-none transition focus:border-accent"
           placeholder="Ваше имя"
         />
@@ -49,6 +49,15 @@ export function ContactForm() {
           name="phone"
           className="border border-ink/15 px-4 py-3 text-base outline-none transition focus:border-accent"
           placeholder="+7 (___) ___-__-__"
+        />
+      </label>
+      <label className="grid gap-2 text-sm text-ink/70">
+        Email
+        <input
+          type="email"
+          name="email"
+          className="border border-ink/15 px-4 py-3 text-base outline-none transition focus:border-accent"
+          placeholder="your@email.com"
         />
       </label>
       <label className="grid gap-2 text-sm text-ink/70">

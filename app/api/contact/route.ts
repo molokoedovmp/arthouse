@@ -3,15 +3,15 @@ import pool from '@/lib/db'
 
 export async function POST(req: NextRequest) {
   try {
-    const { name, phone, message } = await req.json()
+    const { name, phone, email, message } = await req.json()
 
     if (!name && !phone && !message) {
       return NextResponse.json({ error: 'Пустая форма' }, { status: 400 })
     }
 
     await pool.query(
-      `INSERT INTO contact_requests (name, phone, message) VALUES ($1, $2, $3)`,
-      [name || null, phone || null, message || null]
+      `INSERT INTO contact_requests (name, phone, email, message) VALUES ($1, $2, $3, $4)`,
+      [name || null, phone || null, email || null, message || null]
     )
 
     return NextResponse.json({ ok: true })

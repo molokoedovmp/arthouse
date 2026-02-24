@@ -1,6 +1,5 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Container } from "./Container";
 
 const pages = [
   { label: "О проекте", href: "/about" },
@@ -14,19 +13,19 @@ const pages = [
 export function Footer() {
   return (
     <footer className="border-t border-ink/10 bg-stone/30">
-      <Container>
+      <div className="w-full px-6 lg:px-8">
         <div className="grid gap-10 py-12 md:grid-cols-[1fr_160px_160px]">
           {/* Бренд */}
           <div>
-            <Link href="/" className="flex items-center gap-3">
+            <Link href="/" className="flex items-start gap-4">
               <Image
                 src="/l.png"
                 alt="Арт Хаус"
-                width={200}
-                height={200}
-                className="h-10 w-auto object-contain"
+                width={400}
+                height={400}
+                className="h-[200px] w-auto object-contain"
               />
-              <div>
+              <div className="pt-2">
                 <p className="font-display text-base leading-tight">Арт Хаус</p>
                 <p className="caps text-[10px] text-ink/50">Ольга Смирнова</p>
               </div>
@@ -96,7 +95,7 @@ export function Footer() {
           </p>
           <p className="text-xs text-ink/25">Художественная мастерская</p>
         </div>
-      </Container>
+      </div>
     </footer>
   );
 }
