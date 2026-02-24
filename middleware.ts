@@ -2,8 +2,6 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { jwtVerify } from 'jose'
 
-const secret = new TextEncoder().encode(process.env.ADMIN_PASSWORD)
-
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
@@ -18,6 +16,7 @@ export async function middleware(request: NextRequest) {
   }
 
   try {
+    const secret = new TextEncoder().encode(process.env.ADMIN_PASSWORD)
     await jwtVerify(token, secret)
     return NextResponse.next()
   } catch {
