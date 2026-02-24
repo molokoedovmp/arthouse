@@ -10,6 +10,7 @@ const navLinks = [
   { label: "Расписание", href: "/schedule" },
   { label: "Галерея", href: "/gallery" },
   { label: "Картины", href: "/paintings" },
+  { label: "Связаться", href: "/contact" },
 ];
 
 export function Header() {

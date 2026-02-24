@@ -108,7 +108,9 @@ export default async function SchedulePage() {
                           <h3 className="mt-1 font-display text-[22px] leading-tight">{slot.title}</h3>
                           {slot.age && <p className="mt-1 text-sm text-ink/50">{slot.age}</p>}
                           {slot.spots != null && (
-                            <p className="mt-1 text-xs text-ink/40">мест: {slot.spots}</p>
+                            <span className="mt-2 inline-block rounded bg-accent/15 px-2 py-0.5 text-xs font-medium text-accent">
+                              {slot.spots} мест
+                            </span>
                           )}
                         </div>
                       ))}
@@ -157,7 +159,9 @@ export default async function SchedulePage() {
                           <h3 className="mt-1 font-display text-[15px] leading-snug">{slot.title}</h3>
                           {slot.age && <p className="caps mt-1 text-[10px] text-accent">{slot.age}</p>}
                           {slot.spots != null && (
-                            <p className="mt-1 text-[10px] text-ink/35">мест: {slot.spots}</p>
+                            <span className="mt-1.5 inline-block rounded bg-accent/15 px-2 py-0.5 text-[10px] font-medium text-accent">
+                              {slot.spots} мест
+                            </span>
                           )}
                         </div>
                       ))}
