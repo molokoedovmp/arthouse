@@ -16,7 +16,7 @@ export default function ContactPage() {
           <div className="space-y-6">
             <div>
               <p className="caps text-ink/50">Адрес</p>
-              <p className="mt-2 text-sm text-ink/70">Дзержинск, Нижегородская область</p>
+              <p className="mt-2 text-sm text-ink/70">Москва</p>
             </div>
             <div>
               <p className="caps text-ink/50">Телефон</p>

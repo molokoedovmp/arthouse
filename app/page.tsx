@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import pool from "../lib/db";
+import { PaintingsShowcase } from "@/components/PaintingsShowcase";
 
 export const metadata = {
   title: "Главная",
@@ -70,7 +71,7 @@ export default async function HomePage() {
     size: string;
     image: string;
   }>(
-    `SELECT id, title, year, technique, size, image FROM paintings ORDER BY id DESC LIMIT 8`
+    `SELECT id, title, year, technique, size, image FROM paintings ORDER BY id DESC LIMIT 5`
   );
   const paintings = paintingsRes.rows;
 
@@ -189,33 +190,59 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ── Картины ── */}
+      {/* ── Каталог картин ── */}
       <section className="border-t border-ink/10">
-        <div className="w-full">
-          <div className="flex items-center justify-between border-b border-ink/10 px-6 py-5 lg:px-8">
-            <p className="caps text-ink/40">Картины</p>
-            <Link href="/paintings" className="caps text-ink/40 transition hover:text-ink">
-              Весь каталог →
+        <div className="grid lg:grid-cols-[1fr_1fr] lg:items-stretch">
+          <div className="flex flex-col justify-center px-8 py-16 md:px-16 lg:px-20 lg:py-24">
+            <p className="caps text-ink/40">Каталог</p>
+            <h2 className="mt-3 font-display text-3xl italic leading-tight lg:text-4xl">
+              Авторские картины
+            </h2>
+            <p className="mt-4 max-w-lg text-sm leading-relaxed text-ink/60">
+              Коллекция работ Ольги Смирновой — живопись маслом, акварель и графика.
+              Каждая картина передаёт настроение, свет и тишину момента.
+            </p>
+            <Link
+              href="/paintings"
+              className="mt-6 w-fit text-xs uppercase tracking-[0.2em] text-ink/50 transition hover:text-ink"
+            >
+              Смотреть каталог →
             </Link>
           </div>
-          <div className="grid grid-cols-4 border-b border-ink/10">
-            {paintings.map((painting) => (
-              <Link
-                key={painting.id}
-                href={`/paintings/${painting.id}`}
-                className="group relative overflow-hidden bg-stone"
-                style={{ aspectRatio: "1 / 1" }}
-              >
-                <Image
-                  src={painting.image || "/images/painting-placeholder.svg"}
-                  alt={painting.title}
-                  fill
-                  className="object-cover transition duration-500 group-hover:scale-105"
-                />
-              </Link>
-            ))}
+          <div className="relative aspect-square overflow-hidden bg-stone">
+            <Image src="/images/catalog_pic.jpg" alt="Каталог картин" fill className="object-cover" />
           </div>
         </div>
+      </section>
+
+      {/* ── Галерея учеников ── */}
+      <section className="border-t border-ink/10">
+        <div className="grid lg:grid-cols-[1fr_1fr] lg:items-stretch">
+          <div className="relative aspect-square overflow-hidden bg-stone lg:order-first">
+            <Image src="/images/gaallery.jpg" alt="Галерея работ" fill className="object-cover" />
+          </div>
+          <div className="flex flex-col justify-center px-8 py-16 md:px-16 lg:px-20 lg:py-24">
+            <p className="caps text-ink/40">Галерея</p>
+            <h2 className="mt-3 font-display text-3xl italic leading-tight lg:text-4xl">
+              Работы учеников
+            </h2>
+            <p className="mt-4 max-w-lg text-sm leading-relaxed text-ink/60">
+              Наши ученики создают удивительные работы с первых занятий.
+              Здесь собраны лучшие из них — от первых набросков до завершённых картин.
+            </p>
+            <Link
+              href="/gallery"
+              className="mt-6 w-fit text-xs uppercase tracking-[0.2em] text-ink/50 transition hover:text-ink"
+            >
+              Открыть галерею →
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Картины ── */}
+      <section className="border-t border-ink/10">
+        <PaintingsShowcase paintings={paintings} />
       </section>
 
       {/* ── О мастерской ── */}
@@ -224,7 +251,7 @@ export default async function HomePage() {
           <div className="grid lg:grid-cols-[420px_1fr] lg:items-stretch">
             <div className="relative min-h-[320px] overflow-hidden bg-stone border-b border-ink/10 lg:min-h-0 lg:border-b-0 lg:border-r lg:border-ink/10">
               <Image
-                src="/images/image.png"
+                src="/images/IMG_8891.jpg"
                 alt="Арт Хаус студия"
                 fill
                 className="object-cover"
