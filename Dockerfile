@@ -1,59 +1,23 @@
-FROM node:20-alpine AS base
-
-# ── Зависимости ──────────────────────────────────────────────
-FROM base AS deps
-RUN apk add --no-cache libc6-compat
+FROM node:22.16.0-slim AS deps
 WORKDIR /app
-
-COPY package.json package-lock.json ./
+COPY package*.json ./
 RUN npm ci
 
-# ── Сборка ───────────────────────────────────────────────────
-FROM base AS builder
+FROM node:22.16.0-slim AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-
-# Переменные нужны при сборке для Next.js
-ARG DATABASE_URL
-ARG ADMIN_PASSWORD
-ARG S3_ENDPOINT
-ARG S3_ACCESS_KEY
-ARG S3_SECRET_KEY
-ARG S3_BUCKET
-ARG S3_REGION
-
-ENV DATABASE_URL=$DATABASE_URL
-ENV ADMIN_PASSWORD=$ADMIN_PASSWORD
-ENV S3_ENDPOINT=$S3_ENDPOINT
-ENV S3_ACCESS_KEY=$S3_ACCESS_KEY
-ENV S3_SECRET_KEY=$S3_SECRET_KEY
-ENV S3_BUCKET=$S3_BUCKET
-ENV S3_REGION=$S3_REGION
-
+ENV NEXT_TELEMETRY_DISABLED=1
 RUN npm run build
 
-# ── Продакшн-образ ────────────────────────────────────────────
-FROM base AS runner
+FROM node:22.16.0-slim AS runner
 WORKDIR /app
-
 ENV NODE_ENV=production
-
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
-
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV PORT=3005
 COPY --from=builder /app/public ./public
-
-RUN mkdir .next
-RUN chown nextjs:nodejs .next
-
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-
-USER nextjs
-
-EXPOSE 3000
-ENV PORT=3000
-ENV HOSTNAME="0.0.0.0"
-
-CMD ["node", "server.js"]
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/node_modules ./node_modules
+EXPOSE 3005
+CMD ["npm", "run", "start"]
