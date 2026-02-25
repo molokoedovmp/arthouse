@@ -4,6 +4,7 @@ interface ScheduleTableProps {
   items: ScheduleItem[];
 }
 
+
 export function ScheduleTable({ items }: ScheduleTableProps) {
   return (
     <div className="overflow-hidden border border-ink/10">
