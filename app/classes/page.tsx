@@ -3,6 +3,8 @@ import Link from "next/link";
 import { Container } from "../../components/Container";
 import pool from "../../lib/db";
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: "Занятия",
   description: "Направления для детей, взрослых и коворкинг в художественной мастерской.",

@@ -3,6 +3,8 @@ import { SectionTitle } from "../../components/SectionTitle";
 import { PaintingCard } from "../../components/PaintingCard";
 import pool from "../../lib/db";
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: "Картины",
   description: "Каталог авторских работ Ольги Смирновой.",

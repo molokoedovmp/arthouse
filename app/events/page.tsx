@@ -1,6 +1,8 @@
 import { Container } from "../../components/Container";
 import pool from "../../lib/db";
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: "Мероприятия",
   description: "Анонсы событий и новости художественной мастерской.",

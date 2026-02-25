@@ -3,6 +3,8 @@ import Link from "next/link";
 import pool from "../lib/db";
 import { PaintingsShowcase } from "@/components/PaintingsShowcase";
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: "Главная",
   description: "Художественная мастерская, занятия и авторские картины.",

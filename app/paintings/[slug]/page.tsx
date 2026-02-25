@@ -5,6 +5,8 @@ import { Container } from "../../../components/Container";
 import { SectionTitle } from "../../../components/SectionTitle";
 import pool from "../../../lib/db";
 
+export const dynamic = 'force-dynamic';
+
 interface Props {
   params: { slug: string };
 }

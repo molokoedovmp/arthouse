@@ -2,6 +2,8 @@ import Link from "next/link";
 import { Container } from "../../components/Container";
 import pool from "../../lib/db";
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: "Расписание",
   description: "График занятий художественной мастерской Арт Хаус.",

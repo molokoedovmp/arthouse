@@ -3,6 +3,8 @@ import { SectionTitle } from "../../components/SectionTitle";
 import { GalleryFilter } from "../../components/GalleryFilter";
 import pool from "../../lib/db";
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: "Галерея",
   description: "Работы учеников и фотографии мероприятий художественной мастерской.",
