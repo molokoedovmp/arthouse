@@ -35,6 +35,10 @@ const RESOURCES: Record<string, ResourceConfig> = {
     fields: ['name', 'phone', 'email', 'message'],
     readOnly: true,
   },
+  bookings: {
+    table: 'bookings',
+    fields: ['status'],
+  },
 }
 
 async function isAuthed(): Promise<boolean> {
@@ -69,7 +73,25 @@ export async function GET(
   let rows: unknown[]
   let total: number
 
-  if (params.resource === 'schedule') {
+  if (params.resource === 'bookings') {
+    const countRes = await pool.query('SELECT COUNT(*) FROM bookings')
+    total = parseInt(countRes.rows[0].count)
+
+    const query = all
+      ? `SELECT b.*, s.start_datetime, sv.title AS service_title
+         FROM bookings b
+         JOIN schedule s ON b.schedule_id = s.id
+         JOIN services sv ON s.service_id = sv.id
+         ORDER BY b.created_at DESC`
+      : `SELECT b.*, s.start_datetime, sv.title AS service_title
+         FROM bookings b
+         JOIN schedule s ON b.schedule_id = s.id
+         JOIN services sv ON s.service_id = sv.id
+         ORDER BY b.created_at DESC LIMIT $1 OFFSET $2`
+
+    const res = all ? await pool.query(query) : await pool.query(query, [limit, offset])
+    rows = res.rows
+  } else if (params.resource === 'schedule') {
     const countRes = await pool.query('SELECT COUNT(*) FROM schedule')
     total = parseInt(countRes.rows[0].count)
 

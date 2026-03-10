@@ -2,6 +2,8 @@ import Image from "next/image";
 import Link from "next/link";
 import pool from "../lib/db";
 import { PaintingsShowcase } from "@/components/PaintingsShowcase";
+import { getLang } from "../lib/get-lang";
+import { getT } from "../lib/i18n";
 
 export const dynamic = 'force-dynamic';
 
@@ -20,7 +22,10 @@ function fmtTime(dt: Date, durationMin: number) {
 }
 
 export default async function HomePage() {
-  // Schedule — group all active events by day of week, deduplicate same slot in multiple weeks
+  const lang = await getLang();
+  const t = getT(lang);
+  const h = t.home;
+
   const scheduleRes = await pool.query<{
     start_datetime: Date;
     service_title: string;
@@ -35,7 +40,6 @@ export default async function HomePage() {
      LIMIT 50`
   );
 
-  // Group by day of week, dedup same time+title across weeks
   const scheduleByDay: Record<string, Array<{ title: string; time: string; age: string }>> = {};
   const seenSlots = new Set<string>();
   for (const row of scheduleRes.rows) {
@@ -52,7 +56,6 @@ export default async function HomePage() {
     });
   }
 
-  // Build flat ordered list by Mon–Sun
   type ScheduleEntry = { day: string; title: string; time: string; age: string };
   const scheduleItems: ScheduleEntry[] = [];
   for (const day of daysOrder) {
@@ -64,7 +67,6 @@ export default async function HomePage() {
     }
   }
 
-  // Latest 8 paintings
   const paintingsRes = await pool.query<{
     id: number;
     title: string;
@@ -77,7 +79,6 @@ export default async function HomePage() {
   );
   const paintings = paintingsRes.rows;
 
-  // Services from DB (first 4)
   const servicesRes = await pool.query<{
     id: number;
     title: string;
@@ -91,32 +92,44 @@ export default async function HomePage() {
   return (
     <div>
       {/* ── Hero ── */}
-      <section
-        className="flex flex-col border-b border-ink/10"
-        style={{ minHeight: "calc(100vh - 84px)" }}
-      >
-        <div className="relative min-h-0 flex-1 overflow-hidden bg-stone">
-          <Image
-            src="/images/25.jpg"
-            alt="Арт Хаус — авторская живопись Ольги Смирновой"
-            fill
-            priority
-            className="object-cover object-top"
-          />
-        </div>
-        <div className="mx-auto w-full max-w-[600px] shrink-0 px-6 py-5 text-center lg:py-6">
-          <h1 className="font-display text-[30px] leading-snug md:text-[38px] lg:text-[44px]">
-            Художественная мастерская<br />Ольги Смирновой
-          </h1>
-          <p className="mt-2 text-[13px] text-ink/50">
-            Камерные занятия, мастер-классы и авторская живопись
-          </p>
-          <Link
-            href="/about"
-            className="mt-3 inline-block text-[13px] text-ink underline decoration-ink/30 underline-offset-4 transition hover:decoration-ink"
-          >
-            О проекте ·
-          </Link>
+      <section className="border-b border-ink/10">
+        <div className="grid md:grid-cols-2 md:items-center" style={{ minHeight: "calc(100vh - 84px)" }}>
+          {/* Text */}
+          <div className="flex flex-col justify-center px-6 py-14 md:px-12 lg:px-20">
+            <p className="caps text-sm text-ink/40">{h.heroLink}</p>
+            <h1 className="mt-4 font-display text-[40px] leading-[1.1] md:text-[52px] lg:text-[64px]">
+              {lang === "en" ? (
+                <>Art Studio of<br />Olga Smirnova</>
+              ) : (
+                <>Художественная<br />мастерская<br />Ольги Смирновой</>
+              )}
+            </h1>
+            <p className="mt-4 max-w-xs text-[14px] leading-relaxed text-ink/50">{h.heroSubtitle}</p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Link
+                href="/classes"
+                className="bg-ink px-6 py-3 text-xs uppercase tracking-[0.2em] text-white transition hover:bg-ink/80"
+              >
+                {t.common.register}
+              </Link>
+              <Link
+                href="/about"
+                className="border border-ink/20 px-6 py-3 text-xs uppercase tracking-[0.2em] text-ink transition hover:border-ink"
+              >
+                {lang === "ru" ? "О проекте" : "About"}
+              </Link>
+            </div>
+          </div>
+          {/* Photo */}
+          <div className="relative h-[60vw] md:h-full" style={{ minHeight: "400px" }}>
+            <Image
+              src="/event/11.JPG"
+              alt="Арт Хаус"
+              fill
+              priority
+              className="object-cover object-center"
+            />
+          </div>
         </div>
       </section>
 
@@ -128,14 +141,14 @@ export default async function HomePage() {
             {/* Занятия — левая колонка */}
             <div className="flex flex-col border-b border-ink/10 lg:border-b-0 lg:border-r lg:border-ink/10">
               <div className="flex items-center justify-between border-b border-ink/10 px-6 py-5 lg:px-8">
-                <p className="caps text-ink/40">Занятия</p>
+                <p className="caps text-ink/40">{h.classesLabel}</p>
                 <Link href="/classes" className="caps text-ink/40 transition hover:text-ink">
-                  Все направления →
+                  {h.classesAll}
                 </Link>
               </div>
               <div className="grid flex-1 md:grid-cols-2">
                 {services.length === 0 ? (
-                  <div className="col-span-2 p-8 text-sm text-ink/40">Занятия скоро будут добавлены</div>
+                  <div className="col-span-2 p-8 text-sm text-ink/40">{h.classesEmpty}</div>
                 ) : (
                   services.map((item, index) => (
                     <Link
@@ -160,21 +173,23 @@ export default async function HomePage() {
             {/* Расписание — правая колонка */}
             <div className="flex flex-col">
               <div className="flex items-center justify-between border-b border-ink/10 px-6 py-5">
-                <p className="caps text-ink/40">Расписание</p>
+                <p className="caps text-ink/40">{h.scheduleLabel}</p>
                 <Link href="/schedule" className="caps text-ink/40 transition hover:text-ink">
-                  Полное →
+                  {h.scheduleFull}
                 </Link>
               </div>
               <div className="flex-1 divide-y divide-ink/10">
                 {scheduleItems.length > 0 ? scheduleItems.map((item, index) => (
                   <div key={index} className="px-6 py-4">
-                    <p className="text-[10px] uppercase tracking-[0.15em] text-ink/35">{item.day}</p>
+                    <p className="text-[10px] uppercase tracking-[0.15em] text-ink/35">
+                      {t.schedule.daysLong[item.day] ?? item.day}
+                    </p>
                     <p className="mt-1 font-display text-[17px] leading-snug">{item.title}</p>
                     <p className="mt-0.5 text-xs text-ink/50">{item.time}{item.age ? ` · ${item.age}` : ""}</p>
                   </div>
                 )) : (
                   <div className="px-6 py-8 text-sm text-ink/40">
-                    Расписание скоро будет добавлено
+                    {h.scheduleEmpty}
                   </div>
                 )}
               </div>
@@ -183,7 +198,7 @@ export default async function HomePage() {
                   href="/contact"
                   className="block w-full bg-ink py-3 text-center text-xs uppercase tracking-[0.2em] text-white transition hover:bg-ink/80"
                 >
-                  Записаться
+                  {t.common.register}
                 </Link>
               </div>
             </div>
@@ -196,19 +211,16 @@ export default async function HomePage() {
       <section className="border-t border-ink/10">
         <div className="grid lg:grid-cols-[1fr_1fr] lg:items-stretch">
           <div className="flex flex-col justify-center px-8 py-16 md:px-16 lg:px-20 lg:py-24">
-            <p className="caps text-ink/40">Каталог</p>
+            <p className="caps text-ink/40">{h.catalogLabel}</p>
             <h2 className="mt-3 font-display text-3xl italic leading-tight lg:text-4xl">
-              Авторские картины
+              {h.catalogTitle}
             </h2>
-            <p className="mt-4 max-w-lg text-sm leading-relaxed text-ink/60">
-              Коллекция работ Ольги Смирновой — живопись маслом, акварель и графика.
-              Каждая картина передаёт настроение, свет и тишину момента.
-            </p>
+            <p className="mt-4 max-w-lg text-sm leading-relaxed text-ink/60">{h.catalogText}</p>
             <Link
               href="/paintings"
               className="mt-6 w-fit text-xs uppercase tracking-[0.2em] text-ink/50 transition hover:text-ink"
             >
-              Смотреть каталог →
+              {h.catalogLink}
             </Link>
           </div>
           <div className="relative aspect-square overflow-hidden bg-stone">
@@ -224,19 +236,16 @@ export default async function HomePage() {
             <Image src="/images/gaallery.jpg" alt="Галерея работ" fill className="object-cover" />
           </div>
           <div className="flex flex-col justify-center px-8 py-16 md:px-16 lg:px-20 lg:py-24">
-            <p className="caps text-ink/40">Галерея</p>
+            <p className="caps text-ink/40">{h.galleryLabel}</p>
             <h2 className="mt-3 font-display text-3xl italic leading-tight lg:text-4xl">
-              Работы учеников
+              {h.galleryTitle}
             </h2>
-            <p className="mt-4 max-w-lg text-sm leading-relaxed text-ink/60">
-              Наши ученики создают удивительные работы с первых занятий.
-              Здесь собраны лучшие из них — от первых набросков до завершённых картин.
-            </p>
+            <p className="mt-4 max-w-lg text-sm leading-relaxed text-ink/60">{h.galleryText}</p>
             <Link
               href="/gallery"
               className="mt-6 w-fit text-xs uppercase tracking-[0.2em] text-ink/50 transition hover:text-ink"
             >
-              Открыть галерею →
+              {h.galleryLink}
             </Link>
           </div>
         </div>
@@ -260,25 +269,19 @@ export default async function HomePage() {
               />
             </div>
             <div className="px-6 py-12 lg:px-12 lg:py-16">
-              <p className="caps text-ink/40">О мастерской</p>
+              <p className="caps text-ink/40">{h.studioLabel}</p>
               <h2 className="mt-3 font-display text-[36px] leading-tight md:text-[48px]">
-                Тонкая работа с формой и наблюдением
+                {h.studioTitle}
               </h2>
               <div className="mt-6 space-y-4 text-[16px] text-ink/70">
-                <p>
-                  Мы строим занятия вокруг медленного наблюдения, работы с материалами и бережного отношения к процессу.
-                  Программа подходит для детей и взрослых, включая занятия на английском языке и свободный коворкинг.
-                </p>
-                <p>
-                  В мастерской проходят камерные выставки и события — живые встречи, где можно почувствовать атмосферу
-                  искусства и общения.
-                </p>
+                <p>{h.studioText1}</p>
+                <p>{h.studioText2}</p>
               </div>
               <Link
                 href="/about"
                 className="mt-8 inline-block border border-ink/20 px-6 py-3 text-xs uppercase tracking-[0.2em] text-ink transition hover:border-ink"
               >
-                О проекте
+                {h.studioLink}
               </Link>
             </div>
           </div>

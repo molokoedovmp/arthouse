@@ -5,14 +5,19 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
+import { useLanguage } from "./LangProvider";
+import { getT } from "../lib/i18n";
 
-const navLinks = [
-  { label: "О проекте", href: "/about" },
-  { label: "Занятия", href: "/classes" },
-  { label: "Расписание", href: "/schedule" },
-  { label: "Галерея", href: "/gallery" },
-  { label: "Картины", href: "/paintings" },
-  { label: "Связаться", href: "/contact" },
+const navKeys = [
+  { key: "about" as const, href: "/about" },
+  { key: "artist" as const, href: "/artist" },
+  { key: "classes" as const, href: "/classes" },
+  { key: "coworking" as const, href: "/coworking" },
+  { key: "schedule" as const, href: "/schedule" },
+  { key: "events" as const, href: "/events" },
+  { key: "gallery" as const, href: "/gallery" },
+  { key: "paintings" as const, href: "/paintings" },
+  { key: "contact" as const, href: "/contact" },
 ];
 
 function MobileMenu({
@@ -25,6 +30,9 @@ function MobileMenu({
   isActive: (href: string) => boolean;
 }) {
   const [mounted, setMounted] = useState(false);
+  const { lang, setLang } = useLanguage();
+  const t = getT(lang);
+
   useEffect(() => setMounted(true), []);
 
   if (!mounted || !open) return null;
@@ -36,6 +44,9 @@ function MobileMenu({
         inset: 0,
         zIndex: 99999,
         backgroundColor: "#ffffff",
+        display: "flex",
+        flexDirection: "column",
+        overflow: "hidden",
       }}
     >
       {/* Top bar: logo + close */}
@@ -44,14 +55,22 @@ function MobileMenu({
           <Image src="/l.png" alt="Арт Хаус" width={300} height={300} style={{ height: "40px", width: "auto", objectFit: "contain" }} />
           <span className="font-display" style={{ fontSize: "14px" }}>Арт Хаус</span>
         </Link>
-        <button onClick={onClose} style={{ fontSize: "24px", color: "#333", background: "none", border: "none", cursor: "pointer" }} aria-label="Закрыть">
-          ✕
-        </button>
+        <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+          <button
+            onClick={() => setLang(lang === "ru" ? "en" : "ru")}
+            style={{ fontSize: "11px", letterSpacing: "0.12em", color: "rgba(0,0,0,0.5)", background: "none", border: "1px solid rgba(0,0,0,0.15)", padding: "4px 8px", cursor: "pointer" }}
+          >
+            {lang === "ru" ? "EN" : "RU"}
+          </button>
+          <button onClick={onClose} style={{ fontSize: "24px", color: "#333", background: "none", border: "none", cursor: "pointer" }} aria-label="Закрыть">
+            ✕
+          </button>
+        </div>
       </div>
 
       {/* Links */}
-      <nav style={{ display: "flex", flexDirection: "column", padding: "0 24px" }}>
-        {navLinks.map((link) => (
+      <nav style={{ display: "flex", flexDirection: "column", padding: "0 24px", overflowY: "auto", flex: 1 }}>
+        {navKeys.map((link) => (
           <Link
             key={link.href}
             href={link.href}
@@ -66,7 +85,7 @@ function MobileMenu({
             }}
             className="font-display"
           >
-            {link.label}
+            {t.nav[link.key]}
           </Link>
         ))}
       </nav>
@@ -78,6 +97,8 @@ function MobileMenu({
 export function Header() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const { lang, setLang } = useLanguage();
+  const t = getT(lang);
 
   useEffect(() => {
     setOpen(false);
@@ -111,16 +132,23 @@ export function Header() {
             </Link>
 
             {/* Desktop nav */}
-            <nav className="hidden gap-6 lg:flex">
-              {navLinks.map((link) => (
+            <nav className="hidden items-center gap-3 lg:flex xl:gap-5">
+              {navKeys.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`caps link-underline ${isActive(link.href) ? "text-ink" : "text-ink/60"}`}
+                  className={`caps link-underline whitespace-nowrap text-[10px] xl:text-[11px] ${isActive(link.href) ? "text-ink" : "text-ink/60"}`}
                 >
-                  {link.label}
+                  {t.nav[link.key]}
                 </Link>
               ))}
+              {/* Language toggle */}
+              <button
+                onClick={() => setLang(lang === "ru" ? "en" : "ru")}
+                className="caps ml-1 border border-ink/20 px-2 py-1 text-[10px] text-ink/50 transition hover:border-ink/50 hover:text-ink xl:text-[11px]"
+              >
+                {lang === "ru" ? "EN" : "RU"}
+              </button>
             </nav>
 
             {/* Mobile burger */}

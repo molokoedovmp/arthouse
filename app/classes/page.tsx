@@ -2,6 +2,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { Container } from "../../components/Container";
 import pool from "../../lib/db";
+import { getLang } from "../../lib/get-lang";
+import { getT } from "../../lib/i18n";
 
 export const dynamic = 'force-dynamic';
 
@@ -11,6 +13,10 @@ export const metadata = {
 };
 
 export default async function ClassesPage() {
+  const lang = await getLang();
+  const t = getT(lang);
+  const c = t.classes;
+
   const res = await pool.query<{
     id: number;
     title: string;
@@ -26,12 +32,12 @@ export default async function ClassesPage() {
 
   return (
     <div>
-      {/* Заголовок — полноэкранный hero с картиной */}
+      {/* Hero */}
       <section className="relative overflow-hidden border-b border-ink/10">
         <div className="absolute inset-0 bg-stone">
           <Image
             src="/images/IMG_8390.jpg"
-            alt="Занятия в мастерской"
+            alt={c.title}
             fill
             priority
             className="object-cover"
@@ -43,23 +49,21 @@ export default async function ClassesPage() {
           <div className="relative flex min-h-[62vh] flex-col justify-between py-12 lg:min-h-[74vh] lg:py-16">
             <div>
               <h1 className="font-display text-[56px] leading-tight text-white md:text-[80px] lg:text-[96px]">
-                Занятия<br />и форматы
+                {lang === "en" ? <>Classes<br />&amp; Formats</> : <>Занятия<br />и форматы</>}
               </h1>
-              <p className="mt-4 max-w-lg text-[17px] text-white/65">
-                Камерные группы, внимательная педагогика и пространство, где процесс важнее результата.
-              </p>
+              <p className="mt-4 max-w-lg text-[17px] text-white/65">{c.subtitle}</p>
               <div className="mt-8 flex flex-wrap gap-4">
                 <Link
                   href="/contact"
                   className="bg-white px-6 py-3 text-xs uppercase tracking-[0.2em] text-ink transition hover:bg-white/90"
                 >
-                  Записаться
+                  {t.common.register}
                 </Link>
                 <Link
                   href="/schedule"
                   className="border border-white/40 px-6 py-3 text-xs uppercase tracking-[0.2em] text-white transition hover:border-white"
                 >
-                  Расписание
+                  {c.scheduleLink}
                 </Link>
               </div>
             </div>
@@ -73,7 +77,7 @@ export default async function ClassesPage() {
           <div className="grid border-l border-ink/10 md:grid-cols-2">
             {classes.length === 0 ? (
               <div className="col-span-2 border-b border-r border-ink/10 p-10 text-center">
-                <p className="font-display text-[22px] text-ink/30">Услуги скоро будут добавлены</p>
+                <p className="font-display text-[22px] text-ink/30">{c.noItems}</p>
               </div>
             ) : (
               classes.map((item, index) => (
@@ -99,19 +103,19 @@ export default async function ClassesPage() {
                   <div className="mt-6 flex flex-wrap gap-x-6 gap-y-2 border-t border-ink/10 pt-5">
                     {item.age_group && (
                       <div>
-                        <p className="text-[10px] uppercase tracking-[0.15em] text-ink/35">Возраст</p>
+                        <p className="text-[10px] uppercase tracking-[0.15em] text-ink/35">{c.age}</p>
                         <p className="mt-0.5 text-sm text-ink/70">{item.age_group}</p>
                       </div>
                     )}
                     {item.duration_minutes && (
                       <div>
-                        <p className="text-[10px] uppercase tracking-[0.15em] text-ink/35">Длительность</p>
-                        <p className="mt-0.5 text-sm text-ink/70">{item.duration_minutes} мин</p>
+                        <p className="text-[10px] uppercase tracking-[0.15em] text-ink/35">{c.duration}</p>
+                        <p className="mt-0.5 text-sm text-ink/70">{item.duration_minutes} {t.common.minutes}</p>
                       </div>
                     )}
                     {item.price && (
                       <div>
-                        <p className="text-[10px] uppercase tracking-[0.15em] text-ink/35">Стоимость</p>
+                        <p className="text-[10px] uppercase tracking-[0.15em] text-ink/35">{c.price}</p>
                         <p className="mt-0.5 text-sm text-ink/70">
                           {Number(item.price).toLocaleString("ru-RU")} ₽
                         </p>
@@ -124,14 +128,12 @@ export default async function ClassesPage() {
 
             {/* CTA ячейка */}
             <div className="border-b border-r border-ink/10 p-8 lg:p-10 flex flex-col justify-between">
-              <p className="font-display text-[22px] leading-snug text-ink/40">
-                Не нашли подходящий формат? Напишите — подберём индивидуальный вариант.
-              </p>
+              <p className="font-display text-[22px] leading-snug text-ink/40">{c.ctaText}</p>
               <Link
                 href="/contact"
                 className="mt-6 w-fit bg-ink px-6 py-3 text-xs uppercase tracking-[0.2em] text-white transition hover:bg-ink/80"
               >
-                Написать нам
+                {t.common.writeUs}
               </Link>
             </div>
           </div>

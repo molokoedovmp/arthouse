@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Container } from "../../../components/Container";
 import { SectionTitle } from "../../../components/SectionTitle";
+import { ZoomableImage } from "../../../components/ZoomableImage";
 import pool from "../../../lib/db";
 
 export const dynamic = 'force-dynamic';
@@ -60,7 +61,7 @@ export default async function PaintingPage({ params }: Props) {
       <Container>
         <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr]">
           <div className="overflow-hidden bg-stone">
-            <Image
+            <ZoomableImage
               src={painting.image || "/images/painting-placeholder.svg"}
               alt={painting.title}
               width={1000}

@@ -1,9 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import { useLanguage } from "./LangProvider";
+import { getT } from "../lib/i18n";
 
 export function ContactForm() {
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const { lang } = useLanguage();
+  const t = getT(lang).contact.form;
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -34,47 +38,47 @@ export function ContactForm() {
   return (
     <form onSubmit={handleSubmit} className="mt-6 grid gap-4">
       <label className="grid gap-2 text-sm text-ink/70">
-        Имя
+        {t.name}
         <input
           type="text"
           name="name"
           className="border border-ink/15 px-4 py-3 text-base outline-none transition focus:border-accent"
-          placeholder="Ваше имя"
+          placeholder={t.namePlaceholder}
         />
       </label>
       <label className="grid gap-2 text-sm text-ink/70">
-        Телефон
+        {t.phone}
         <input
           type="tel"
           name="phone"
           className="border border-ink/15 px-4 py-3 text-base outline-none transition focus:border-accent"
-          placeholder="+7 (___) ___-__-__"
+          placeholder={t.phonePlaceholder}
         />
       </label>
       <label className="grid gap-2 text-sm text-ink/70">
-        Email
+        {t.email}
         <input
           type="email"
           name="email"
           className="border border-ink/15 px-4 py-3 text-base outline-none transition focus:border-accent"
-          placeholder="your@email.com"
+          placeholder={t.emailPlaceholder}
         />
       </label>
       <label className="grid gap-2 text-sm text-ink/70">
-        Сообщение
+        {t.message}
         <textarea
           name="message"
           rows={4}
           className="border border-ink/15 px-4 py-3 text-base outline-none transition focus:border-accent"
-          placeholder="Напишите, чем можем помочь"
+          placeholder={t.messagePlaceholder}
         />
       </label>
 
       {status === "success" && (
-        <p className="text-sm text-green-700">Заявка отправлена — мы свяжемся с вами!</p>
+        <p className="text-sm text-green-700">{t.success}</p>
       )}
       {status === "error" && (
-        <p className="text-sm text-red-600">Не удалось отправить. Попробуйте ещё раз.</p>
+        <p className="text-sm text-red-600">{t.error}</p>
       )}
 
       <button
@@ -82,7 +86,7 @@ export function ContactForm() {
         disabled={status === "loading"}
         className="mt-2 w-fit bg-ink px-6 py-3 text-xs uppercase tracking-[0.2em] text-white transition hover:bg-ink/90 disabled:opacity-50"
       >
-        {status === "loading" ? "Отправка…" : "Отправить"}
+        {status === "loading" ? t.sending : t.submit}
       </button>
     </form>
   );

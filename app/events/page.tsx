@@ -1,111 +1,128 @@
+import Image from "next/image";
+import Link from "next/link";
 import { Container } from "../../components/Container";
+import { EventBookingModal } from "../../components/EventBookingModal";
 import pool from "../../lib/db";
+import { getLang } from "../../lib/get-lang";
+import { getT } from "../../lib/i18n";
 
 export const dynamic = 'force-dynamic';
 
 export const metadata = {
-  title: "Мероприятия",
-  description: "Анонсы событий и новости художественной мастерской.",
+  title: "Анонсы мероприятий",
+  description: "Анонсы событий и новости художественной мастерской Арт Хаус.",
 };
 
-const MONTHS = [
+const MONTHS_RU = [
   "января", "февраля", "марта", "апреля", "мая", "июня",
   "июля", "августа", "сентября", "октября", "ноября", "декабря",
 ];
-
-function fmtDate(d: Date) {
-  return `${d.getDate()} ${MONTHS[d.getMonth()]}`;
-}
+const MONTHS_EN = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December",
+];
 
 export default async function EventsPage() {
+  const lang = await getLang();
+  const t = getT(lang);
+
   const res = await pool.query<{
     id: number;
     title: string;
     description: string;
     event_date: Date;
     image: string;
+    max_participants: number | null;
+    booked: string;
   }>(
-    `SELECT id, title, description, event_date, image FROM events ORDER BY event_date ASC`
+    `SELECT e.id, e.title, e.description, e.event_date, e.image, e.max_participants,
+            COUNT(eb.id) AS booked
+     FROM events e
+     LEFT JOIN event_bookings eb ON eb.event_id = e.id
+     GROUP BY e.id
+     ORDER BY e.event_date ASC`
   );
   const events = res.rows;
+  const MONTHS = lang === "en" ? MONTHS_EN : MONTHS_RU;
 
   return (
     <div>
-      {/* Заголовок */}
-      <section className="border-b border-ink/10 py-16">
-        <Container>
-          <p className="caps text-ink/40">Арт Хаус</p>
-          <h1 className="mt-4 font-display text-[56px] leading-tight md:text-[80px]">
-            Ближайшие<br />события
-          </h1>
-        </Container>
-      </section>
+      <Container>
+        <div className="border-b border-ink/10 py-10">
+          <h1 className="font-display text-[32px]">{t.events.title}</h1>
+        </div>
 
-      {/* Список событий */}
-      <section className="py-4">
-        <Container>
-          {events.length === 0 ? (
-            <p className="py-16 text-center font-display text-[22px] text-ink/30">
-              Скоро появятся новые события
-            </p>
-          ) : (
-            events.map((event, index) => {
-              const dateStr = fmtDate(new Date(event.event_date));
-              const [day, ...rest] = dateStr.split(" ");
+        {events.length === 0 ? (
+          <p className="py-24 text-center font-display text-[20px] text-ink/25">
+            {t.events.noItems}
+          </p>
+        ) : (
+          <div className="divide-y divide-ink/10">
+            {events.map((event) => {
+              const dt = new Date(event.event_date);
+              const day = dt.getDate();
+              const month = MONTHS[dt.getMonth()];
+              const year = dt.getFullYear();
+              const booked = parseInt(event.booked) || 0;
+              const availableSpots = event.max_participants !== null
+                ? event.max_participants - booked
+                : null;
+
               return (
-                <div key={event.id} className="border-b border-ink/10 py-10 lg:py-14">
-                  <div className="grid gap-6 lg:grid-cols-[160px_1fr_80px] lg:items-start">
-                    {/* Дата */}
-                    <div>
-                      <span className="font-display text-[64px] leading-none text-ink/15 lg:text-[72px]">
-                        {day}
-                      </span>
-                      <p className="caps mt-1 text-ink/40">{rest.join(" ")}</p>
-                    </div>
-
-                    {/* Контент */}
-                    <div className="space-y-3">
-                      <p className="caps text-accent">
-                        {index === 0 ? "Скоро" : "Предстоящее событие"}
+                <div key={event.id} className="grid gap-8 py-10 lg:grid-cols-[1fr_180px] lg:items-start">
+                  <div>
+                    <p className="caps text-sm text-ink/40">
+                      {day} {month} {year}
+                    </p>
+                    <h2 className="mt-3 font-display text-[26px] leading-tight md:text-[30px]">
+                      {event.title}
+                    </h2>
+                    {event.description && (
+                      <p className="mt-3 max-w-xl text-[15px] leading-relaxed text-ink/60">
+                        {event.description}
                       </p>
-                      <h2 className="font-display text-[28px] leading-tight md:text-[36px]">
-                        {event.title}
-                      </h2>
-                      {event.description && (
-                        <p className="max-w-lg text-ink/60">{event.description}</p>
-                      )}
-                    </div>
-
-                    {/* Порядковый номер */}
-                    <div className="hidden text-right lg:block">
-                      <span className="font-display text-[64px] leading-none text-ink/5">
-                        {String(index + 1).padStart(2, "0")}
+                    )}
+                    {availableSpots !== null && availableSpots > 0 && (
+                      <span className="mt-3 inline-block rounded bg-accent/15 px-2 py-0.5 text-xs font-medium text-accent">
+                        {availableSpots} {t.common.spots}
                       </span>
-                    </div>
+                    )}
+                    <EventBookingModal
+                      eventId={event.id}
+                      title={event.title}
+                      availableSpots={availableSpots}
+                    />
                   </div>
+
+                  {event.image ? (
+                    <div className="overflow-hidden bg-stone">
+                      <Image
+                        src={event.image}
+                        alt={event.title}
+                        width={360}
+                        height={240}
+                        className="h-44 w-full object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <div />
+                  )}
                 </div>
               );
-            })
-          )}
-        </Container>
-      </section>
-
-      {/* CTA */}
-      <section className="py-16">
-        <Container>
-          <div className="flex flex-col gap-6 border-t border-ink/10 pt-12 md:flex-row md:items-end md:justify-between">
-            <p className="font-display text-[22px] text-ink/50 md:text-[28px]">
-              Следите за анонсами или напишите нам напрямую
-            </p>
-            <a
-              href="/contact"
-              className="w-fit bg-ink px-8 py-3 text-xs uppercase tracking-[0.2em] text-white transition hover:bg-ink/80"
-            >
-              Связаться
-            </a>
+            })}
           </div>
-        </Container>
-      </section>
+        )}
+
+        <div className="flex items-center justify-between border-t border-ink/10 py-8">
+          <p className="text-sm text-ink/40">{t.events.ctaText}</p>
+          <Link
+            href="/contact"
+            className="text-xs uppercase tracking-[0.15em] text-ink/50 underline-offset-4 hover:underline hover:text-ink transition"
+          >
+            {t.common.writeUs}
+          </Link>
+        </div>
+      </Container>
     </div>
   );
 }

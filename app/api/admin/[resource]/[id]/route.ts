@@ -35,6 +35,10 @@ const RESOURCES: Record<string, ResourceConfig> = {
     fields: ['name', 'phone', 'email', 'message'],
     readOnly: true,
   },
+  bookings: {
+    table: 'bookings',
+    fields: ['status'],
+  },
 }
 
 async function isAuthed(): Promise<boolean> {

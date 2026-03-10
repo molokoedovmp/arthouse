@@ -9,7 +9,9 @@ const navItems = [
   { href: '/admin/events', label: 'События' },
   { href: '/admin/paintings', label: 'Картины' },
   { href: '/admin/gallery', label: 'Галерея' },
-  { href: '/admin/contact-requests', label: 'Заявки' },
+  { href: '/admin/bookings', label: 'Записи на занятия' },
+  { href: '/admin/event-bookings', label: 'Записи на события' },
+  { href: '/admin/contact-requests', label: 'Заявки (контакты)' },
 ]
 
 export function AdminNav() {

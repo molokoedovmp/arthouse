@@ -2,6 +2,8 @@ import { Container } from "../../components/Container";
 import { SectionTitle } from "../../components/SectionTitle";
 import { PaintingCard } from "../../components/PaintingCard";
 import pool from "../../lib/db";
+import { getLang } from "../../lib/get-lang";
+import { getT } from "../../lib/i18n";
 
 export const dynamic = 'force-dynamic';
 
@@ -11,6 +13,9 @@ export const metadata = {
 };
 
 export default async function PaintingsPage() {
+  const lang = await getLang();
+  const t = getT(lang);
+
   const res = await pool.query<{
     id: number;
     title: string;
@@ -25,10 +30,10 @@ export default async function PaintingsPage() {
   return (
     <section className="py-16">
       <Container>
-        <SectionTitle subtitle="Каталог">Авторские картины</SectionTitle>
+        <SectionTitle subtitle={t.paintings.subtitle}>{t.paintings.title}</SectionTitle>
         {res.rows.length === 0 ? (
           <p className="mt-12 text-center font-display text-[22px] text-ink/30">
-            Картины скоро появятся
+            {t.paintings.noItems}
           </p>
         ) : (
           <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">

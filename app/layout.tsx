@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import { Cormorant_Garamond, Manrope } from "next/font/google";
 import "./globals.css";
 import { ClientLayout } from "../components/ClientLayout";
+import { LangProvider } from "../components/LangProvider";
+import { cookies } from "next/headers";
+import type { Lang } from "../lib/i18n";
 
 const displayFont = Cormorant_Garamond({
   subsets: ["latin", "cyrillic"],
@@ -26,15 +29,20 @@ export const metadata: Metadata = {
     "Художественная мастерская и художник Ольга Смирнова: занятия, мастер-классы, выставки и каталог картин.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const store = await cookies();
+  const lang: Lang = store.get("lang")?.value === "en" ? "en" : "ru";
+
   return (
-    <html lang="ru">
+    <html lang={lang}>
       <body className={`${displayFont.variable} ${bodyFont.variable} bg-paper text-ink`}>
-        <ClientLayout>{children}</ClientLayout>
+        <LangProvider initialLang={lang}>
+          <ClientLayout>{children}</ClientLayout>
+        </LangProvider>
       </body>
     </html>
   );

@@ -1,29 +1,33 @@
 import { Container } from "../../components/Container";
-import { SectionTitle } from "../../components/SectionTitle";
-import { artistBio } from "../../data/content";
+import { ArtistsList } from "../../components/ArtistsList";
+import { artists } from "../../data/content";
+import { getLang } from "../../lib/get-lang";
+import { getT } from "../../lib/i18n";
 
 export const metadata = {
-  title: "О художнике",
-  description: "Биография и художественный путь Ольги Смирновой.",
+  title: "Художники",
+  description: "Художники и педагоги Арт Хаус — творческой мастерской Ольги Смирновой.",
 };
 
-export default function ArtistPage() {
+const subtitleText = {
+  ru: "Люди, которые создают атмосферу мастерской, ведут занятия и делятся своим взглядом на искусство.",
+  en: "The people who create the studio atmosphere, lead classes and share their vision of art.",
+};
+
+export default async function ArtistsPage() {
+  const lang = await getLang();
+  const t = getT(lang);
+
   return (
     <section className="py-16">
       <Container>
-        <SectionTitle subtitle="О художнике">Ольга Смирнова</SectionTitle>
-        <div className="grid gap-6 md:grid-cols-2">
-          {artistBio.map((paragraph) => (
-            <p key={paragraph}>{paragraph}</p>
-          ))}
+        <div className="mb-12">
+          <p className="caps text-accent">Арт Хаус</p>
+          <h1 className="mt-2 font-display text-[36px] leading-tight md:text-[48px]">{t.artist.title}</h1>
+          <p className="mt-4 max-w-xl text-ink/60">{subtitleText[lang]}</p>
         </div>
-        <div className="mt-12 border border-ink/10 bg-stone p-8">
-          <p className="caps text-accent">Авторские работы</p>
-          <h3 className="mt-3 font-display text-2xl">Живопись как тихий диалог</h3>
-          <p className="mt-4 text-sm text-ink/70">
-            В картинах важен баланс между воздухом и цветом, между ясной формой и мягкой фактурой.
-          </p>
-        </div>
+
+        <ArtistsList artists={artists} />
       </Container>
     </section>
   );
