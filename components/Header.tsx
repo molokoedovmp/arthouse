@@ -52,7 +52,7 @@ function MobileMenu({
       {/* Top bar: logo + close */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 24px", borderBottom: "1px solid rgba(0,0,0,0.05)" }}>
         <Link href="/" onClick={onClose} style={{ display: "flex", alignItems: "center", gap: "12px", textDecoration: "none", color: "#000" }}>
-          <Image src="/l.png" alt="Арт Хаус" width={300} height={300} style={{ height: "40px", width: "auto", objectFit: "contain" }} />
+          <Image src="/ARTHOUSE.png" alt="Арт Хаус" width={300} height={300} style={{ height: "40px", width: "auto", objectFit: "contain" }} />
           <span className="font-display" style={{ fontSize: "14px" }}>Арт Хаус</span>
         </Link>
         <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
@@ -122,7 +122,7 @@ export function Header() {
 
             {/* Logo */}
             <Link href="/" className="flex items-center gap-3" onClick={() => setOpen(false)}>
-              <Image src="/l.png" alt="Арт Хаус" width={300} height={300} className="h-10 w-auto object-contain lg:h-[60px]" />
+              <Image src="/ARTHOUSE.png" alt="Арт Хаус" width={300} height={300} className="h-10 w-auto object-contain lg:h-[60px]" />
               <div className="flex flex-col">
                 <span className="font-display text-sm tracking-tight lg:text-xl">
                   Арт Хаус

@@ -26,7 +26,7 @@ export function Footer() {
           <div>
             <Link href="/" className="inline-block">
               <Image
-                src="/l.png"
+                src="/ARTHOUSE.png"
                 alt="Арт Хаус"
                 width={300}
                 height={300}

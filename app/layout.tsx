@@ -39,6 +39,9 @@ export default async function RootLayout({
 
   return (
     <html lang={lang}>
+      <head>
+        <link rel="icon" href="/ARTHOUSE.png" />
+      </head>
       <body className={`${displayFont.variable} ${bodyFont.variable} bg-paper text-ink`}>
         <LangProvider initialLang={lang}>
           <ClientLayout>{children}</ClientLayout>
