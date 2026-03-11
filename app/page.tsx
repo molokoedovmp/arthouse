@@ -195,7 +195,7 @@ export default async function HomePage() {
               </div>
               <div className="border-t border-ink/10 p-6">
                 <Link
-                  href="/contact"
+                  href="/schedule"
                   className="block w-full bg-ink py-3 text-center text-xs uppercase tracking-[0.2em] text-white transition hover:bg-ink/80"
                 >
                   {t.common.register}

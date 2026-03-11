@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import pool from '@/lib/db'
+import { sendAdminBookingNotification } from '@/lib/email'
 
 export async function POST(req: NextRequest) {
   const { event_id, name, phone, email } = await req.json()
@@ -13,8 +14,8 @@ export async function POST(req: NextRequest) {
     await client.query('BEGIN')
 
     // Проверяем лимит мест если задан
-    const eventRes = await client.query<{ max_participants: number | null }>(
-      'SELECT max_participants FROM events WHERE id = $1 FOR UPDATE',
+    const eventRes = await client.query<{ max_participants: number | null; title: string; event_date: string | null }>(
+      'SELECT max_participants, title, event_date FROM events WHERE id = $1 FOR UPDATE',
       [event_id]
     )
     if (eventRes.rows.length === 0) {
@@ -22,7 +23,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Мероприятие не найдено' }, { status: 404 })
     }
 
-    const { max_participants } = eventRes.rows[0]
+    const { max_participants, title, event_date } = eventRes.rows[0]
     if (max_participants !== null) {
       const countRes = await client.query<{ count: string }>(
         "SELECT COUNT(*) FROM event_bookings WHERE event_id = $1",
@@ -40,6 +41,9 @@ export async function POST(req: NextRequest) {
       [event_id, name, phone, email || null]
     )
     await client.query('COMMIT')
+
+    sendAdminBookingNotification({ eventTitle: title, eventDate: event_date, name, phone, email }).catch(console.error)
+
     return NextResponse.json({ id: result.rows[0].id }, { status: 201 })
   } catch (err) {
     await client.query('ROLLBACK')
