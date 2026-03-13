@@ -1,5 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
 import pool from '@/lib/db'
+import nodemailer from 'nodemailer'
+
+const transporter = nodemailer.createTransport({
+  host: 'smtp.gmail.com',
+  port: 587,
+  secure: false,
+  auth: {
+    user: process.env.NEXT_PUBLIC_NODEMAILER_USER,
+    pass: process.env.NEXT_PUBLIC_NODEMAILER_PASSWORD,
+  },
+})
 
 export async function POST(req: NextRequest) {
   try {
@@ -43,6 +54,19 @@ export async function POST(req: NextRequest) {
           return NextResponse.json({ error: 'К сожалению, все места уже заняты' }, { status: 409 })
         }
       }
+
+      await transporter.sendMail({
+        from: process.env.NEXT_PUBLIC_NODEMAILER_USER,
+        to: process.env.NEXT_PUBLIC_NODEMAILER_TO,
+        subject: `Новая запись на занятие`,
+        html: `
+          <h2>Новая запись на занятие</h2>
+          <p><strong>Имя:</strong> ${name}</p>
+          <p><strong>Телефон:</strong> ${phone}</p>
+          <p><strong>Email:</strong> ${email || '—'}</p>
+          <p><strong>ID занятия:</strong> ${schedule_id}</p>
+        `,
+      })
 
       await client.query(
         `INSERT INTO bookings (schedule_id, name, phone, email) VALUES ($1, $2, $3, $4)`,
