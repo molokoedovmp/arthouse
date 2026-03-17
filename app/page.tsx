@@ -224,7 +224,7 @@ export default async function HomePage() {
             </Link>
           </div>
           <div className="relative aspect-square overflow-hidden bg-stone">
-            <Image src="/images/catalog_pic.jpg" alt="Каталог картин" fill className="object-cover" />
+            <Image src="/images/IMG_8891.jpg" alt="Арт Хаус студия" fill className="object-cover" />
           </div>
         </div>
       </section>
@@ -256,37 +256,26 @@ export default async function HomePage() {
         <PaintingsShowcase paintings={paintings} />
       </section>
 
-      {/* ── О мастерской ── */}
-      <section className="border-b border-t border-ink/10">
-        <div className="w-full">
-          <div className="grid lg:grid-cols-[420px_1fr] lg:items-stretch">
-            <div className="relative min-h-[320px] overflow-hidden bg-stone border-b border-ink/10 lg:min-h-0 lg:border-b-0 lg:border-r lg:border-ink/10">
-              <Image
-                src="/images/IMG_8891.jpg"
-                alt="Арт Хаус студия"
-                fill
-                className="object-cover"
-              />
-            </div>
-            <div className="px-6 py-12 lg:px-12 lg:py-16">
-              <p className="caps text-ink/40">{h.studioLabel}</p>
-              <h2 className="mt-3 font-display text-[36px] leading-tight md:text-[48px]">
-                {h.studioTitle}
-              </h2>
-              <div className="mt-6 space-y-4 text-[16px] text-ink/70">
-                <p>{h.studioText1}</p>
-                <p>{h.studioText2}</p>
-              </div>
-              <Link
-                href="/about"
-                className="mt-8 inline-block border border-ink/20 px-6 py-3 text-xs uppercase tracking-[0.2em] text-ink transition hover:border-ink"
-              >
-                {h.studioLink}
-              </Link>
-            </div>
-          </div>
+      {/* ── Связаться ── */}
+      <section className="border-t border-ink/10 bg-[#f5f3f0]">
+        <div className="flex flex-col items-center justify-center px-6 py-16 text-center lg:py-20">
+          <h2 className="font-display text-[32px] leading-tight md:text-[40px]">
+            {t.contact.heading}
+          </h2>
+          <p className="mt-4 max-w-md text-sm leading-relaxed text-ink/50">
+            {lang === "ru"
+              ? "Напишите нам, если хотите записаться на занятие, узнать о мероприятиях или задать вопрос."
+              : "Get in touch to book a class, learn about upcoming events or ask a question."}
+          </p>
+          <Link
+            href="/contact"
+            className="mt-8 bg-ink px-8 py-4 text-xs uppercase tracking-[0.2em] text-white transition hover:bg-ink/80"
+          >
+            {t.common.writeUs}
+          </Link>
         </div>
       </section>
+
     </div>
   );
 }

@@ -10,12 +10,12 @@ import { getT } from "../lib/i18n";
 
 const navKeys = [
   { key: "about" as const, href: "/about" },
-  { key: "artist" as const, href: "/artist" },
   { key: "classes" as const, href: "/classes" },
   { key: "coworking" as const, href: "/coworking" },
   { key: "schedule" as const, href: "/schedule" },
   { key: "events" as const, href: "/events" },
   { key: "gallery" as const, href: "/gallery" },
+  { key: "artist" as const, href: "/artist" },
   { key: "paintings" as const, href: "/paintings" },
   { key: "contact" as const, href: "/contact" },
 ];
@@ -52,8 +52,7 @@ function MobileMenu({
       {/* Top bar: logo + close */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 24px", borderBottom: "1px solid rgba(0,0,0,0.05)" }}>
         <Link href="/" onClick={onClose} style={{ display: "flex", alignItems: "center", gap: "12px", textDecoration: "none", color: "#000" }}>
-          <Image src="/ARTHOUSE.png" alt="Арт Хаус" width={300} height={300} style={{ height: "40px", width: "auto", objectFit: "contain" }} />
-          <span className="font-display" style={{ fontSize: "14px" }}>Арт Хаус</span>
+          <Image src="/ARTHOUSE.png" alt="Арт Хаус" width={300} height={300} style={{ height: "50px", width: "auto", objectFit: "contain" }} />
         </Link>
         <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
           <button
@@ -121,23 +120,17 @@ export function Header() {
           <div className="flex items-center justify-between py-3">
 
             {/* Logo */}
-            <Link href="/" className="flex items-center gap-3" onClick={() => setOpen(false)}>
-              <Image src="/ARTHOUSE.png" alt="Арт Хаус" width={300} height={300} className="h-10 w-auto object-contain lg:h-[60px]" />
-              <div className="flex flex-col">
-                <span className="font-display text-sm tracking-tight lg:text-xl">
-                  Арт Хаус
-                </span>
-                <span className="caps hidden text-ink/60 lg:block">Ольга Смирнова</span>
-              </div>
+            <Link href="/" className="flex items-center" onClick={() => setOpen(false)}>
+              <Image src="/ARTHOUSE.png" alt="Арт Хаус" width={300} height={300} className="h-14 w-auto object-contain lg:h-[80px]" />
             </Link>
 
             {/* Desktop nav */}
-            <nav className="hidden items-center gap-3 lg:flex xl:gap-5">
+            <nav className="hidden items-center gap-5 lg:flex xl:gap-7">
               {navKeys.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`caps link-underline whitespace-nowrap text-[10px] xl:text-[11px] ${isActive(link.href) ? "text-ink" : "text-ink/60"}`}
+                  className={`caps link-underline text-center leading-tight max-w-[90px] xl:max-w-[100px] text-[10px] xl:text-[11px] ${isActive(link.href) ? "text-ink" : "text-ink/60"}`}
                 >
                   {t.nav[link.key]}
                 </Link>

@@ -36,7 +36,7 @@ export default async function ClassesPage() {
       <section className="relative overflow-hidden border-b border-ink/10">
         <div className="absolute inset-0 bg-stone">
           <Image
-            src="/images/IMG_8390.jpg"
+            src="/images/25.jpg"
             alt={c.title}
             fill
             priority
