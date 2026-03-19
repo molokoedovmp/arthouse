@@ -1,7 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
+import { readdir } from "fs/promises";
 import pool from "../lib/db";
 import { PaintingsShowcase } from "@/components/PaintingsShowcase";
+import { HeroCarousel } from "@/components/HeroCarousel";
 import { getLang } from "../lib/get-lang";
 import { getT } from "../lib/i18n";
 
@@ -89,6 +91,17 @@ export default async function HomePage() {
   );
   const services = servicesRes.rows;
 
+  const heroDir = `${process.cwd()}/public/hero`;
+  const heroFiles = await readdir(heroDir);
+  const imageNames = heroFiles
+    .filter((file) => /\.(jpg|jpeg|png|webp|avif)$/i.test(file))
+    .sort((a, b) => {
+      if (a === "11.JPG") return -1;
+      if (b === "11.JPG") return 1;
+      return a.localeCompare(b, "ru", { sensitivity: "base" });
+    });
+  const heroImages = imageNames.map((file) => `/hero/${encodeURIComponent(file)}`);
+
   return (
     <div>
       {/* ── Hero ── */}
@@ -122,13 +135,7 @@ export default async function HomePage() {
           </div>
           {/* Photo */}
           <div className="relative h-[60vw] md:h-full" style={{ minHeight: "400px" }}>
-            <Image
-              src="/event/11.JPG"
-              alt="Арт Хаус"
-              fill
-              priority
-              className="object-cover object-center"
-            />
+            <HeroCarousel images={heroImages} alt="Арт Хаус" />
           </div>
         </div>
       </section>
