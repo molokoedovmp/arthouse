@@ -2,6 +2,7 @@ import { Container } from "../../components/Container";
 import { ContactForm } from "../../components/ContactForm";
 import { getLang } from "../../lib/get-lang";
 import { getT } from "../../lib/i18n";
+import { contactInfo } from "../../lib/contact-info";
 
 export const metadata = {
   title: "Контакты",
@@ -24,15 +25,55 @@ export default async function ContactPage() {
           <div className="space-y-6">
             <div>
               <p className="caps text-ink/50">{c.address}</p>
-              <p className="mt-2 text-sm text-ink/70">{c.addressValue}</p>
+              <p className="mt-2 text-sm text-ink/70">{contactInfo.postalAddress}</p>
             </div>
             <div>
               <p className="caps text-ink/50">{c.phone}</p>
-              <p className="mt-2 text-sm text-ink/70">+7 (000) 000-00-00</p>
+              <a href={`tel:${contactInfo.phone}`} className="mt-2 inline-block text-sm text-ink/70 hover:text-ink">
+                {contactInfo.phone}
+              </a>
             </div>
             <div>
               <p className="caps text-ink/50">{c.email}</p>
-              <p className="mt-2 text-sm text-ink/70">arthouse@example.com</p>
+              <a
+                href={`mailto:${contactInfo.email}`}
+                className="mt-2 inline-block text-sm text-ink/70 hover:text-ink"
+              >
+                {contactInfo.email}
+              </a>
+            </div>
+            <div>
+              <p className="caps text-ink/50">Сайт</p>
+              <a
+                href={contactInfo.website}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-2 inline-block text-sm text-ink/70 hover:text-ink"
+              >
+                {contactInfo.websiteLabel}
+              </a>
+            </div>
+            <div>
+              <p className="caps text-ink/50">Телеграм</p>
+              <a
+                href={contactInfo.telegram}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-2 inline-block text-sm text-ink/70 hover:text-ink"
+              >
+                {contactInfo.telegram}
+              </a>
+            </div>
+            <div>
+              <p className="caps text-ink/50">Вк</p>
+              <a
+                href={contactInfo.vk}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-2 inline-block text-sm text-ink/70 hover:text-ink"
+              >
+                {contactInfo.vk}
+              </a>
             </div>
             <div>
               <p className="caps text-ink/50">{c.schedule}</p>

@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { contactInfo } from "@/lib/contact-info";
 
 const nav = [
   { label: "О проекте", href: "/about" },
@@ -11,8 +12,9 @@ const nav = [
 
 const contacts = [
   { label: "Написать нам", href: "/contact" },
-  { label: "ВКонтакте", href: "https://vk.com", external: true },
-  { label: "Telegram", href: "https://t.me", external: true },
+  { label: "Сайт", href: contactInfo.website, external: true },
+  { label: "ВКонтакте", href: contactInfo.vk, external: true },
+  { label: "Telegram", href: contactInfo.telegram, external: true },
 ];
 
 export function Footer() {
@@ -90,13 +92,13 @@ export function Footer() {
               Связаться
             </p>
             <div className="flex flex-col gap-3 text-sm">
-              <a href="tel:+70000000000" className="text-ink/50 transition hover:text-ink">
-                +7 (000) 000-00-00
+              <a href={`tel:${contactInfo.phone}`} className="text-ink/50 transition hover:text-ink">
+                {contactInfo.phone}
               </a>
-              <a href="mailto:arthouse@example.com" className="text-ink/50 transition hover:text-ink">
-                arthouse@example.com
+              <a href={`mailto:${contactInfo.email}`} className="text-ink/50 transition hover:text-ink">
+                {contactInfo.email}
               </a>
-              <p className="text-ink/35">Москва</p>
+              <p className="text-ink/35">{contactInfo.postalAddress}</p>
             </div>
           </div>
 
