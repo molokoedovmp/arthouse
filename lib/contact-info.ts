@@ -1,5 +1,5 @@
 export const contactInfo = {
-  phone: "89992772565",
+  phone: "89235545503",
   email: "arthausterritory@yandex.ru",
   website: "https://art-territory.ru",
   websiteLabel: "art-territory.ru",
