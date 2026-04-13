@@ -91,14 +91,14 @@ export function Footer() {
             <p className="mb-5 text-[10px] font-semibold uppercase tracking-[0.2em] text-ink/35">
               Связаться
             </p>
-            <div className="flex flex-col gap-3 text-sm">
+            <div className="flex flex-col gap-3 text-sm leading-relaxed text-ink/50">
               <a href={`tel:${contactInfo.phone}`} className="text-ink/50 transition hover:text-ink">
                 {contactInfo.phone}
               </a>
               <a href={`mailto:${contactInfo.email}`} className="text-ink/50 transition hover:text-ink">
                 {contactInfo.email}
               </a>
-              <p className="text-ink/35">{contactInfo.postalAddress}</p>
+              <p className="text-sm leading-relaxed text-ink/50">{contactInfo.postalAddress}</p>
             </div>
           </div>
 

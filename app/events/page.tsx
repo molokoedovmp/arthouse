@@ -10,7 +10,7 @@ export const dynamic = 'force-dynamic';
 
 export const metadata = {
   title: "Анонсы мероприятий",
-  description: "Анонсы событий и новости художественной мастерской Арт Хаус.",
+  description: "Анонсы мероприятий и новости территории творчества АртХаус.",
 };
 
 const MONTHS_RU = [

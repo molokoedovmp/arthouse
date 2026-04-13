@@ -8,6 +8,9 @@ export function ContactForm() {
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const { lang } = useLanguage();
   const t = getT(lang).contact.form;
+  const labelClass = "caps text-ink/50";
+  const fieldClass =
+    "border border-ink/15 px-4 py-3 text-sm leading-relaxed text-ink/70 outline-none transition focus:border-accent placeholder:text-ink/35";
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -36,40 +39,40 @@ export function ContactForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="mt-6 grid gap-4">
-      <label className="grid gap-2 text-sm text-ink/70">
-        {t.name}
+    <form onSubmit={handleSubmit} className="grid gap-5">
+      <label className="grid gap-2">
+        <span className={labelClass}>{t.name}</span>
         <input
           type="text"
           name="name"
-          className="border border-ink/15 px-4 py-3 text-base outline-none transition focus:border-accent"
+          className={fieldClass}
           placeholder={t.namePlaceholder}
         />
       </label>
-      <label className="grid gap-2 text-sm text-ink/70">
-        {t.phone}
+      <label className="grid gap-2">
+        <span className={labelClass}>{t.phone}</span>
         <input
           type="tel"
           name="phone"
-          className="border border-ink/15 px-4 py-3 text-base outline-none transition focus:border-accent"
+          className={fieldClass}
           placeholder={t.phonePlaceholder}
         />
       </label>
-      <label className="grid gap-2 text-sm text-ink/70">
-        {t.email}
+      <label className="grid gap-2">
+        <span className={labelClass}>{t.email}</span>
         <input
           type="email"
           name="email"
-          className="border border-ink/15 px-4 py-3 text-base outline-none transition focus:border-accent"
+          className={fieldClass}
           placeholder={t.emailPlaceholder}
         />
       </label>
-      <label className="grid gap-2 text-sm text-ink/70">
-        {t.message}
+      <label className="grid gap-2">
+        <span className={labelClass}>{t.message}</span>
         <textarea
           name="message"
           rows={4}
-          className="border border-ink/15 px-4 py-3 text-base outline-none transition focus:border-accent"
+          className={fieldClass}
           placeholder={t.messagePlaceholder}
         />
       </label>

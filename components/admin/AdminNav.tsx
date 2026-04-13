@@ -6,11 +6,11 @@ import { usePathname, useRouter } from 'next/navigation'
 const navItems = [
   { href: '/admin/services', label: 'Услуги' },
   { href: '/admin/schedule', label: 'Расписание' },
-  { href: '/admin/events', label: 'События' },
+  { href: '/admin/events', label: 'Анонсы мероприятий' },
   { href: '/admin/paintings', label: 'Картины' },
   { href: '/admin/gallery', label: 'Галерея' },
   { href: '/admin/bookings', label: 'Записи на занятия' },
-  { href: '/admin/event-bookings', label: 'Записи на события' },
+  { href: '/admin/event-bookings', label: 'Записи на мероприятия' },
   { href: '/admin/contact-requests', label: 'Заявки (контакты)' },
 ]
 

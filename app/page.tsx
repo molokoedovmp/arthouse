@@ -11,7 +11,7 @@ export const dynamic = 'force-dynamic';
 
 export const metadata = {
   title: "Главная",
-  description: "Художественная мастерская, занятия и авторские картины.",
+  description: "АртХаус — территория творчества, занятия и авторские картины.",
 };
 
 const daysOrder = ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"];
@@ -112,12 +112,18 @@ export default async function HomePage() {
             <p className="caps text-sm text-ink/40">{h.heroLink}</p>
             <h1 className="mt-4 font-display text-[40px] leading-[1.1] md:text-[52px] lg:text-[64px]">
               {lang === "en" ? (
-                <>Art Studio of<br />Olga Smirnova</>
+                <>ArtHouse<br />Creative Territory<br />of Olga Smirnova</>
               ) : (
-                <>Художественная<br />мастерская<br />Ольги Смирновой</>
+                <>
+                  <span className="bg-gradient-to-r from-[#ef4444] via-[#f59e0b] to-[#3b82f6] bg-clip-text text-transparent">
+                    АртХаус
+                  </span>
+                  <br />
+                  Территория творчества<br />Ольги Смирновой
+                </>
               )}
             </h1>
-            <p className="mt-4 max-w-xs text-[14px] leading-relaxed text-ink/50">{h.heroSubtitle}</p>
+            <p className="mt-4 max-w-md text-[14px] leading-relaxed text-ink/50">{h.heroSubtitle}</p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link
                 href="/classes"
@@ -143,6 +149,51 @@ export default async function HomePage() {
       {/* ── Занятия + Расписание ── */}
       <section className="border-t border-ink/10">
         <div className="w-full">
+          <div className="border-b border-ink/10">
+            <div className="grid gap-6 px-6 py-7 md:grid-cols-[1fr_auto] md:items-center lg:px-8">
+              <div className="max-w-3xl">
+                <p className="caps text-[#2c6f84]">
+                  {lang === "ru" ? "Весенняя акция" : "Spring Offer"}
+                </p>
+
+                <h2 className="mt-3 font-display text-[34px] leading-[1.05] text-ink sm:text-[42px]">
+                  {lang === "ru" ? (
+                    <>
+                      Рисование и живопись
+                      <br />
+                      со скидкой 20%
+                    </>
+                  ) : (
+                    <>
+                      Drawing and painting
+                      <br />
+                      with 20% off
+                    </>
+                  )}
+                </h2>
+
+                <p className="mt-3 max-w-2xl text-sm leading-relaxed text-ink/65">
+                  {lang === "ru"
+                    ? "Для детей и взрослых: мастер-классы, групповые занятия и творческий коворкинг в атмосфере уютной мастерской."
+                    : "For children and adults: workshops, group classes and creative coworking in a warm studio atmosphere."}
+                </p>
+                <p className="mt-3 text-sm font-medium text-ink">
+                  {lang === "ru" ? "Скидка действует на все занятия." : "The discount applies to all classes."}
+                </p>
+              </div>
+
+              <div className="relative mx-auto flex h-32 w-32 items-center justify-center rounded-[44%_56%_63%_37%/43%_41%_59%_57%] bg-[#c93131] shadow-soft md:mx-0 md:h-36 md:w-36">
+                <span className="font-display text-[46px] leading-none text-white">20%</span>
+                <span className="absolute -right-3 bottom-5 h-4 w-4 rounded-full bg-[#c93131]" />
+                <span className="absolute left-3 -top-3 h-5 w-5 rounded-full bg-[#c93131]" />
+                <span className="absolute -bottom-4 left-5 h-6 w-6 rounded-full bg-[#c93131]" />
+                <span className="absolute -top-7 right-1 rotate-[-9deg] text-[12px] uppercase tracking-[0.18em] text-ink/70">
+                  {lang === "ru" ? "скидка" : "offer"}
+                </span>
+              </div>
+            </div>
+          </div>
+
           <div className="grid border-b border-ink/10 lg:grid-cols-[1fr_320px] lg:items-stretch">
 
             {/* Занятия — левая колонка */}
