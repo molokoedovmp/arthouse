@@ -145,8 +145,8 @@ export default async function HomePage() {
       {/* ── Занятия + Расписание ── */}
       <section className="border-t border-ink/10">
         <div className="w-full">
-          <div className="border-b border-ink/10 px-6 py-6 text-center lg:px-8">
-            <p className="font-display text-[clamp(18px,3.2vw,36px)] leading-none text-ink whitespace-nowrap">
+          <div className="border-b border-ink/10 px-2 py-6 text-center sm:px-6 lg:px-8">
+            <p className="font-display whitespace-nowrap text-[clamp(21px,5.1vw,36px)] leading-none text-ink">
               {lang === "ru" ? "Весенняя акция -20% на все занятия." : "Spring offer -20% on all classes."}
             </p>
           </div>
