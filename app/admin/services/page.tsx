@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { ImageUpload } from '../../../components/admin/ImageUpload'
 
 interface Service {
   id: number
@@ -10,6 +11,7 @@ interface Service {
   price: number
   duration_minutes: number
   type: string
+  image: string
 }
 
 const EMPTY: Omit<Service, 'id'> = {
@@ -19,6 +21,7 @@ const EMPTY: Omit<Service, 'id'> = {
   price: 0,
   duration_minutes: 60,
   type: '',
+  image: '',
 }
 
 export default function ServicesPage() {
@@ -50,7 +53,15 @@ export default function ServicesPage() {
 
   function openEdit(row: Service) {
     setEditing(row)
-    setForm({ title: row.title, description: row.description ?? '', age_group: row.age_group ?? '', price: row.price ?? 0, duration_minutes: row.duration_minutes ?? 60, type: row.type ?? '' })
+    setForm({
+      title: row.title,
+      description: row.description ?? '',
+      age_group: row.age_group ?? '',
+      price: row.price ?? 0,
+      duration_minutes: row.duration_minutes ?? 60,
+      type: row.type ?? '',
+      image: row.image ?? '',
+    })
     setModal(true)
   }
 
@@ -65,7 +76,8 @@ export default function ServicesPage() {
     setSaving(true)
     const method = editing ? 'PUT' : 'POST'
     const url = editing ? `/api/admin/services/${editing.id}` : '/api/admin/services'
-    await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form) })
+    const payload = { ...form, image: form.image || null }
+    await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
     setSaving(false)
     setModal(false)
     fetchData()
@@ -94,6 +106,7 @@ export default function ServicesPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gray-200 bg-gray-50 text-left">
+                <th className="px-4 py-3 font-medium text-gray-600">Фото</th>
                 <th className="px-4 py-3 font-medium text-gray-600">Название</th>
                 <th className="px-4 py-3 font-medium text-gray-600">Тип</th>
                 <th className="px-4 py-3 font-medium text-gray-600">Возраст</th>
@@ -105,6 +118,12 @@ export default function ServicesPage() {
             <tbody className="divide-y divide-gray-100">
               {rows.map((row) => (
                 <tr key={row.id} className="hover:bg-gray-50">
+                  <td className="px-4 py-3">
+                    {row.image
+                      // eslint-disable-next-line @next/next/no-img-element
+                      ? <img src={row.image} alt="" className="h-10 w-10 object-cover border border-gray-200" />
+                      : <div className="h-10 w-10 bg-gray-100 border border-gray-200" />}
+                  </td>
                   <td className="px-4 py-3 font-medium text-gray-900">{row.title}</td>
                   <td className="px-4 py-3 text-gray-500">{row.type}</td>
                   <td className="px-4 py-3 text-gray-500">{row.age_group}</td>
@@ -164,6 +183,10 @@ export default function ServicesPage() {
                   <label className="block text-xs font-medium text-gray-600 mb-1">Длительность (мин)</label>
                   <input type="number" value={form.duration_minutes} onChange={e => setForm(f => ({ ...f, duration_minutes: parseInt(e.target.value) || 0 }))} min="0" className="w-full border border-gray-300 px-3 py-2 text-sm focus:border-gray-500 focus:outline-none" />
                 </div>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Изображение</label>
+                <ImageUpload value={form.image} onChange={url => setForm(f => ({ ...f, image: url }))} table="services" />
               </div>
               <div className="flex justify-end gap-3 pt-2 border-t border-gray-100">
                 <button type="button" onClick={() => setModal(false)} className="px-4 py-2 text-sm border border-gray-300 hover:border-gray-500 transition-colors">Отмена</button>

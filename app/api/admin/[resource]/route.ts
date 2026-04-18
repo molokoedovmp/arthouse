@@ -12,7 +12,7 @@ type ResourceConfig = {
 const RESOURCES: Record<string, ResourceConfig> = {
   services: {
     table: 'services',
-    fields: ['title', 'description', 'age_group', 'price', 'duration_minutes', 'type'],
+    fields: ['title', 'description', 'age_group', 'price', 'duration_minutes', 'type', 'image'],
   },
   schedule: {
     table: 'schedule',

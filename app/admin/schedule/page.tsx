@@ -23,6 +23,13 @@ const EMPTY = {
   status: 'active',
 }
 
+function toIsoUtcFromLocalDatetime(value: string) {
+  if (!value) return value
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return value
+  return date.toISOString()
+}
+
 function fmtDatetime(s: string) {
   if (!s) return '—'
   return new Date(s).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
@@ -84,7 +91,11 @@ export default function SchedulePage() {
     setSaving(true)
     const method = editing ? 'PUT' : 'POST'
     const url = editing ? `/api/admin/schedule/${editing.id}` : '/api/admin/schedule'
-    await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form) })
+    const payload = {
+      ...form,
+      start_datetime: toIsoUtcFromLocalDatetime(form.start_datetime),
+    }
+    await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
     setSaving(false)
     setModal(false)
     fetchData()

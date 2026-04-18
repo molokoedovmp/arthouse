@@ -79,13 +79,13 @@ export function EventBookingModal({ eventId, title, availableSpots }: Props) {
   return (
     <>
       {full ? (
-        <span className="inline-block mt-5 border border-ink/25 px-5 py-2 text-xs uppercase tracking-[0.15em] text-ink/30">
+        <span className="inline-block mt-2 border border-ink/10 px-3 py-1 text-[10px] uppercase tracking-[0.15em] text-ink/30">
           {eb.noSpots}
         </span>
       ) : (
         <button
           onClick={open}
-          className="mt-5 inline-block border border-ink/25 px-5 py-2 text-xs uppercase tracking-[0.15em] text-ink/60 transition hover:border-ink/60 hover:text-ink"
+          className="inline-block mt-2 bg-ink px-3 py-1.5 text-[10px] uppercase tracking-[0.15em] text-white transition hover:bg-ink/80"
         >
           {t.events.register}
         </button>
