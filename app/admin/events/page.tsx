@@ -15,12 +15,21 @@ const EMPTY: Omit<EventRow, 'id'> = { title: '', description: '', event_date: ''
 
 function fmtDate(s: string) {
   if (!s) return '—'
-  return new Date(s).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' })
+  return new Date(s).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
 }
 
-function toDateInput(s: string) {
+function toDatetimeLocal(s: string) {
   if (!s) return ''
-  return new Date(s).toISOString().split('T')[0]
+  const d = new Date(s)
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
+}
+
+function toIsoUtcFromLocalDatetime(value: string) {
+  if (!value) return value
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return value
+  return date.toISOString()
 }
 
 export default function EventsPage() {
@@ -48,7 +57,7 @@ export default function EventsPage() {
 
   function openEdit(row: EventRow) {
     setEditing(row)
-    setForm({ title: row.title, description: row.description ?? '', event_date: toDateInput(row.event_date), image: row.image ?? '' })
+    setForm({ title: row.title, description: row.description ?? '', event_date: toDatetimeLocal(row.event_date), image: row.image ?? '' })
     setModal(true)
   }
 
@@ -63,7 +72,8 @@ export default function EventsPage() {
     setSaving(true)
     const method = editing ? 'PUT' : 'POST'
     const url = editing ? `/api/admin/events/${editing.id}` : '/api/admin/events'
-    await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form) })
+    const payload = { ...form, event_date: toIsoUtcFromLocalDatetime(form.event_date) }
+    await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
     setSaving(false)
     setModal(false)
     fetchData()
@@ -145,8 +155,8 @@ export default function EventsPage() {
                 <textarea value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} rows={3} className="w-full border border-gray-300 px-3 py-2 text-sm focus:border-gray-500 focus:outline-none resize-none" />
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Дата события *</label>
-                <input type="date" value={form.event_date} onChange={e => setForm(f => ({ ...f, event_date: e.target.value }))} required className="w-full border border-gray-300 px-3 py-2 text-sm focus:border-gray-500 focus:outline-none" />
+                <label className="block text-xs font-medium text-gray-600 mb-1">Дата и время события *</label>
+                <input type="datetime-local" value={form.event_date} onChange={e => setForm(f => ({ ...f, event_date: e.target.value }))} required className="w-full border border-gray-300 px-3 py-2 text-sm focus:border-gray-500 focus:outline-none" />
               </div>
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">Изображение</label>
