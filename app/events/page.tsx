@@ -34,11 +34,17 @@ export default async function EventsPage() {
     image: string;
     max_participants: number | null;
     booked: string;
+    type: string | null;
+    age_group: string | null;
+    duration_minutes: string | null;
+    price: string | null;
   }>(
     `SELECT e.id, e.title, e.description, e.event_date, e.image, e.max_participants,
+            e.type, e.age_group, e.duration_minutes, e.price,
             COUNT(eb.id) AS booked
      FROM events e
      LEFT JOIN event_bookings eb ON eb.event_id = e.id
+     WHERE e.event_date >= NOW()
      GROUP BY e.id
      ORDER BY e.event_date ASC`
   );
@@ -81,6 +87,34 @@ export default async function EventsPage() {
                       <p className="mt-3 max-w-xl text-[15px] leading-relaxed text-ink/60">
                         {event.description}
                       </p>
+                    )}
+                    {(event.type || event.age_group || event.duration_minutes || event.price) && (
+                      <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2 border-t border-ink/10 pt-4">
+                        {event.type && (
+                          <div>
+                            <p className="text-[10px] uppercase tracking-[0.15em] text-ink/35">{lang === "en" ? "Type" : "Тип"}</p>
+                            <p className="mt-0.5 text-sm text-ink/70">{event.type}</p>
+                          </div>
+                        )}
+                        {event.age_group && (
+                          <div>
+                            <p className="text-[10px] uppercase tracking-[0.15em] text-ink/35">{t.classes.age}</p>
+                            <p className="mt-0.5 text-sm text-ink/70">{event.age_group}</p>
+                          </div>
+                        )}
+                        {event.duration_minutes && (
+                          <div>
+                            <p className="text-[10px] uppercase tracking-[0.15em] text-ink/35">{t.classes.duration}</p>
+                            <p className="mt-0.5 text-sm text-ink/70">{event.duration_minutes}</p>
+                          </div>
+                        )}
+                        {event.price && (
+                          <div>
+                            <p className="text-[10px] uppercase tracking-[0.15em] text-ink/35">{t.classes.price}</p>
+                            <p className="mt-0.5 text-sm text-ink/70">{event.price}</p>
+                          </div>
+                        )}
+                      </div>
                     )}
                     {availableSpots !== null && availableSpots > 0 && (
                       <span className="mt-3 inline-block rounded bg-accent/15 px-2 py-0.5 text-xs font-medium text-accent">

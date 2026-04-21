@@ -9,9 +9,22 @@ interface EventRow {
   description: string
   event_date: string
   image: string
+  age_group: string
+  duration_minutes: string
+  price: string
+  max_participants: number | ''
 }
 
-const EMPTY: Omit<EventRow, 'id'> = { title: '', description: '', event_date: '', image: '' }
+const EMPTY: Omit<EventRow, 'id'> = {
+  title: '',
+  description: '',
+  event_date: '',
+  image: '',
+  age_group: '',
+  duration_minutes: '',
+  price: '',
+  max_participants: '',
+}
 
 function fmtDate(s: string) {
   if (!s) return '—'
@@ -57,7 +70,16 @@ export default function EventsPage() {
 
   function openEdit(row: EventRow) {
     setEditing(row)
-    setForm({ title: row.title, description: row.description ?? '', event_date: toDatetimeLocal(row.event_date), image: row.image ?? '' })
+    setForm({
+      title: row.title,
+      description: row.description ?? '',
+      event_date: toDatetimeLocal(row.event_date),
+      image: row.image ?? '',
+      age_group: row.age_group ?? '',
+      duration_minutes: row.duration_minutes ?? '',
+      price: row.price ?? '',
+      max_participants: row.max_participants ?? '',
+    })
     setModal(true)
   }
 
@@ -72,7 +94,11 @@ export default function EventsPage() {
     setSaving(true)
     const method = editing ? 'PUT' : 'POST'
     const url = editing ? `/api/admin/events/${editing.id}` : '/api/admin/events'
-    const payload = { ...form, event_date: toIsoUtcFromLocalDatetime(form.event_date) }
+    const payload = {
+      ...form,
+      event_date: toIsoUtcFromLocalDatetime(form.event_date),
+      max_participants: form.max_participants === '' ? null : Number(form.max_participants),
+    }
     await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
     setSaving(false)
     setModal(false)
@@ -105,6 +131,7 @@ export default function EventsPage() {
                 <th className="px-4 py-3 font-medium text-gray-600">Фото</th>
                 <th className="px-4 py-3 font-medium text-gray-600">Название</th>
                 <th className="px-4 py-3 font-medium text-gray-600">Дата</th>
+                <th className="px-4 py-3 font-medium text-gray-600">Цена</th>
                 <th className="px-4 py-3" />
               </tr>
             </thead>
@@ -119,6 +146,7 @@ export default function EventsPage() {
                   </td>
                   <td className="px-4 py-3 font-medium text-gray-900">{row.title}</td>
                   <td className="px-4 py-3 text-gray-500">{fmtDate(row.event_date)}</td>
+                  <td className="px-4 py-3 text-gray-500">{row.price || '—'}</td>
                   <td className="px-4 py-3 text-right whitespace-nowrap">
                     <button onClick={() => openEdit(row)} className="text-xs text-blue-600 hover:underline mr-3">Ред.</button>
                     <button onClick={() => handleDelete(row.id)} className="text-xs text-red-600 hover:underline">Удалить</button>
@@ -157,6 +185,24 @@ export default function EventsPage() {
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">Дата и время события *</label>
                 <input type="datetime-local" value={form.event_date} onChange={e => setForm(f => ({ ...f, event_date: e.target.value }))} required className="w-full border border-gray-300 px-3 py-2 text-sm focus:border-gray-500 focus:outline-none" />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Возрастная группа</label>
+                <input type="text" value={form.age_group} onChange={e => setForm(f => ({ ...f, age_group: e.target.value }))} placeholder="например: 6+" className="w-full border border-gray-300 px-3 py-2 text-sm focus:border-gray-500 focus:outline-none" />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">Длительность</label>
+                  <input type="text" value={form.duration_minutes} onChange={e => setForm(f => ({ ...f, duration_minutes: e.target.value }))} placeholder="например: 2 часа" className="w-full border border-gray-300 px-3 py-2 text-sm focus:border-gray-500 focus:outline-none" />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">Цена</label>
+                  <input type="text" value={form.price} onChange={e => setForm(f => ({ ...f, price: e.target.value }))} placeholder="например: 1 500 ₽" className="w-full border border-gray-300 px-3 py-2 text-sm focus:border-gray-500 focus:outline-none" />
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Макс. участников</label>
+                <input type="number" value={form.max_participants} onChange={e => setForm(f => ({ ...f, max_participants: parseInt(e.target.value) || '' }))} min="1" placeholder="Оставьте пустым для безлимита" className="w-full border border-gray-300 px-3 py-2 text-sm focus:border-gray-500 focus:outline-none" />
               </div>
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">Изображение</label>

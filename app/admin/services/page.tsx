@@ -8,8 +8,8 @@ interface Service {
   title: string
   description: string
   age_group: string
-  price: number
-  duration_minutes: number
+  price: string
+  duration_minutes: string
   type: string
   image: string
 }
@@ -18,8 +18,8 @@ const EMPTY: Omit<Service, 'id'> = {
   title: '',
   description: '',
   age_group: '',
-  price: 0,
-  duration_minutes: 60,
+  price: '',
+  duration_minutes: '',
   type: '',
   image: '',
 }
@@ -57,8 +57,8 @@ export default function ServicesPage() {
       title: row.title,
       description: row.description ?? '',
       age_group: row.age_group ?? '',
-      price: row.price ?? 0,
-      duration_minutes: row.duration_minutes ?? 60,
+      price: row.price ?? '',
+      duration_minutes: row.duration_minutes ?? '',
       type: row.type ?? '',
       image: row.image ?? '',
     })
@@ -127,8 +127,8 @@ export default function ServicesPage() {
                   <td className="px-4 py-3 font-medium text-gray-900">{row.title}</td>
                   <td className="px-4 py-3 text-gray-500">{row.type}</td>
                   <td className="px-4 py-3 text-gray-500">{row.age_group}</td>
-                  <td className="px-4 py-3 text-gray-500">{row.price ? `${row.price} ₽` : '—'}</td>
-                  <td className="px-4 py-3 text-gray-500">{row.duration_minutes ? `${row.duration_minutes} мин` : '—'}</td>
+                  <td className="px-4 py-3 text-gray-500">{row.price || '—'}</td>
+                  <td className="px-4 py-3 text-gray-500">{row.duration_minutes || '—'}</td>
                   <td className="px-4 py-3 text-right whitespace-nowrap">
                     <button onClick={() => openEdit(row)} className="text-xs text-blue-600 hover:underline mr-3">Ред.</button>
                     <button onClick={() => handleDelete(row.id)} className="text-xs text-red-600 hover:underline">Удалить</button>
@@ -176,12 +176,12 @@ export default function ServicesPage() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">Цена (₽)</label>
-                  <input type="number" value={form.price} onChange={e => setForm(f => ({ ...f, price: parseFloat(e.target.value) || 0 }))} min="0" step="0.01" className="w-full border border-gray-300 px-3 py-2 text-sm focus:border-gray-500 focus:outline-none" />
+                  <label className="block text-xs font-medium text-gray-600 mb-1">Цена</label>
+                  <input type="text" value={form.price} onChange={e => setForm(f => ({ ...f, price: e.target.value }))} placeholder="например: 3 000 ₽ / от 1 500 ₽" className="w-full border border-gray-300 px-3 py-2 text-sm focus:border-gray-500 focus:outline-none" />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">Длительность (мин)</label>
-                  <input type="number" value={form.duration_minutes} onChange={e => setForm(f => ({ ...f, duration_minutes: parseInt(e.target.value) || 0 }))} min="0" className="w-full border border-gray-300 px-3 py-2 text-sm focus:border-gray-500 focus:outline-none" />
+                  <label className="block text-xs font-medium text-gray-600 mb-1">Длительность</label>
+                  <input type="text" value={form.duration_minutes} onChange={e => setForm(f => ({ ...f, duration_minutes: e.target.value }))} placeholder="например: 60 мин / 1,5 часа" className="w-full border border-gray-300 px-3 py-2 text-sm focus:border-gray-500 focus:outline-none" />
                 </div>
               </div>
               <div>

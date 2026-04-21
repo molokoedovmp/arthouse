@@ -1,7 +1,7 @@
-import Image from "next/image";
 import { Container } from "../../components/Container";
 import { BookingModal } from "../../components/BookingModal";
 import { EventBookingModal } from "../../components/EventBookingModal";
+import { ScheduleImage } from "../../components/ScheduleImage";
 import pool from "../../lib/db";
 import { getLang } from "../../lib/get-lang";
 import { getT } from "../../lib/i18n";
@@ -22,8 +22,8 @@ type ServiceRow = {
   service_description: string | null;
   service_image: string | null;
   age_group: string | null;
-  duration_minutes: number | null;
-  price: number | null;
+  duration_minutes: string | null;
+  price: string | null;
   type: string | null;
   booked: string;
 };
@@ -36,12 +36,20 @@ type EventRow = {
   image: string | null;
   max_participants: number | null;
   booked: string;
+  type: string | null;
+  age_group: string | null;
+  duration_minutes: string | null;
+  price: string | null;
 };
 
-function fmtRange(dt: Date, durationMin: number | null) {
-  const pad = (n: number) => String(n).padStart(2, "0");
-  const end = new Date(dt.getTime() + (durationMin ?? 0) * 60000);
-  return `${pad(dt.getHours())}:${pad(dt.getMinutes())} – ${pad(end.getHours())}:${pad(end.getMinutes())}`;
+const TZ = "Europe/Moscow";
+
+function fmtTime(dt: Date) {
+  return dt.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit", timeZone: TZ });
+}
+
+function fmtRange(dt: Date) {
+  return fmtTime(dt);
 }
 
 function fmtDate(dt: Date, lang: "ru" | "en") {
@@ -50,17 +58,12 @@ function fmtDate(dt: Date, lang: "ru" | "en") {
     day: "2-digit",
     month: "long",
     year: "numeric",
+    timeZone: TZ,
   }).format(dt);
 }
 
 function fmtTimeOnly(dt: Date) {
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${pad(dt.getHours())}:${pad(dt.getMinutes())}`;
-}
-
-function fmtPrice(price: number | null) {
-  if (price === null || price === 0) return "—";
-  return `${Number(price).toLocaleString("ru-RU")} ₽`;
+  return fmtTime(dt);
 }
 
 function fmtNumberOrUnlimited(value: number | null, lang: "ru" | "en") {
@@ -108,9 +111,11 @@ export default async function SchedulePage() {
 
   const eventsRes = await pool.query<EventRow>(
     `SELECT e.id AS event_id, e.title, e.description, e.event_date, e.image, e.max_participants,
+            e.type, e.age_group, e.duration_minutes, e.price,
             COUNT(eb.id) FILTER (WHERE eb.status != 'cancelled') AS booked
      FROM events e
      LEFT JOIN event_bookings eb ON eb.event_id = e.id
+     WHERE e.event_date >= NOW()
      GROUP BY e.id
      ORDER BY e.event_date`
   );
@@ -126,7 +131,7 @@ export default async function SchedulePage() {
       startsAt: start,
       title: row.service_title,
       description: row.service_description ?? "",
-      timeLabel: fmtRange(start, row.duration_minutes),
+      timeLabel: fmtRange(start),
       image: row.service_image ?? null,
       status: row.schedule_status,
       type: row.type ?? "",
@@ -153,6 +158,10 @@ export default async function SchedulePage() {
       timeLabel: fmtTimeOnly(start),
       image: row.image ?? null,
       maxParticipants: row.max_participants,
+      type: row.type ?? "",
+      ageGroup: row.age_group ?? "",
+      durationMinutes: row.duration_minutes ?? "",
+      price: row.price ?? "",
       booked,
       availableSpots,
     };
@@ -218,25 +227,18 @@ export default async function SchedulePage() {
                       <p className="mt-3 text-[15px] leading-relaxed text-ink/60">{item.description}</p>
                     )}
 
-                    {item.kind === "service" ? (
-                      <div className="mt-5 grid gap-2.5 sm:grid-cols-2 xl:grid-cols-3">
-                        <Field label={isRu ? "Возраст" : "Age"} value={item.ageGroup || "—"} />
-                        <Field
-                          label={isRu ? "Длительность" : "Duration"}
-                          value={item.durationMinutes ? `${item.durationMinutes} ${t.common.minutes}` : "—"}
-                        />
-                        <Field label={isRu ? "Стоимость" : "Price"} value={fmtPrice(item.price)} />
-                        <Field
-                          label={isRu ? "Мест всего" : "Total spots"}
-                          value={fmtNumberOrUnlimited(item.maxParticipants, lang)}
-                        />
-                        <Field label={isRu ? "Забронировано" : "Booked"} value={String(item.booked)} />
-                        <Field
-                          label={isRu ? "Свободно" : "Available"}
-                          value={fmtNumberOrUnlimited(item.availableSpots, lang)}
-                        />
-                      </div>
-                    ) : null}
+                    <div className="mt-5 grid gap-2.5 sm:grid-cols-2 xl:grid-cols-3">
+                      {item.ageGroup && <Field label={isRu ? "Возраст" : "Age"} value={item.ageGroup} />}
+                      {item.durationMinutes && <Field label={isRu ? "Длительность" : "Duration"} value={item.durationMinutes} />}
+                      {item.price && <Field label={isRu ? "Стоимость" : "Price"} value={item.price} />}
+                      {item.maxParticipants !== null && (
+                        <>
+                          <Field label={isRu ? "Мест всего" : "Total spots"} value={String(item.maxParticipants)} />
+                          <Field label={isRu ? "Забронировано" : "Booked"} value={String(item.booked)} />
+                          <Field label={isRu ? "Свободно" : "Available"} value={fmtNumberOrUnlimited(item.availableSpots, lang)} />
+                        </>
+                      )}
+                    </div>
 
                     <div className="mt-5">
                       {item.kind === "service" ? (
@@ -257,15 +259,7 @@ export default async function SchedulePage() {
                   </div>
 
                   {item.image ? (
-                    <div className="overflow-hidden border border-ink/10 bg-stone">
-                      <Image
-                        src={item.image}
-                        alt={item.title}
-                        width={420}
-                        height={280}
-                        className="h-full min-h-[180px] w-full object-cover"
-                      />
-                    </div>
+                    <ScheduleImage src={item.image} alt={item.title} />
                   ) : null}
                 </article>
               ))}

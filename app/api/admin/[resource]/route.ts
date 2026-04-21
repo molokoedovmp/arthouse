@@ -20,7 +20,7 @@ const RESOURCES: Record<string, ResourceConfig> = {
   },
   events: {
     table: 'events',
-    fields: ['title', 'description', 'event_date', 'image'],
+    fields: ['title', 'description', 'event_date', 'image', 'type', 'age_group', 'duration_minutes', 'price', 'max_participants'],
   },
   paintings: {
     table: 'paintings',

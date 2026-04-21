@@ -22,11 +22,12 @@ export default async function ClassesPage() {
     title: string;
     description: string;
     age_group: string;
-    price: number;
-    duration_minutes: number;
+    price: string;
+    duration_minutes: string;
     type: string;
+    image: string | null;
   }>(
-    `SELECT id, title, description, age_group, price, duration_minutes, type FROM services ORDER BY id`
+    `SELECT id, title, description, age_group, price, duration_minutes, type, image FROM services ORDER BY id`
   );
   const classes = res.rows;
 
@@ -71,71 +72,105 @@ export default async function ClassesPage() {
         </Container>
       </section>
 
-      {/* Сетка занятий */}
-      <section className="border-b border-ink/10">
-        <Container className="!px-0 lg:!px-0">
-          <div className="grid border-l border-ink/10 md:grid-cols-2">
-            {classes.length === 0 ? (
-              <div className="col-span-2 border-b border-r border-ink/10 p-10 text-center">
-                <p className="font-display text-[22px] text-ink/30">{c.noItems}</p>
-              </div>
-            ) : (
-              classes.map((item, index) => (
-                <div
-                  key={item.id}
-                  className="group border-b border-r border-ink/10 p-8 transition-colors duration-300 hover:bg-stone/60 lg:p-10"
-                >
-                  <div className="flex items-start justify-between">
-                    <p className="caps text-accent">{item.type}</p>
-                    <span className="font-display text-[40px] leading-none text-ink/10">
-                      {String(index + 1).padStart(2, "0")}
-                    </span>
-                  </div>
-
-                  <h2 className="mt-5 font-display text-[26px] leading-tight md:text-[30px]">
-                    {item.title}
-                  </h2>
-
-                  {item.description && (
-                    <p className="mt-3 text-sm leading-relaxed text-ink/60">{item.description}</p>
-                  )}
-
-                  <div className="mt-6 flex flex-wrap gap-x-6 gap-y-2 border-t border-ink/10 pt-5">
-                    {item.age_group && (
-                      <div>
-                        <p className="text-[10px] uppercase tracking-[0.15em] text-ink/35">{c.age}</p>
-                        <p className="mt-0.5 text-sm text-ink/70">{item.age_group}</p>
+      {/* Список занятий */}
+      <section className="py-16 lg:py-24">
+        <Container>
+          {classes.length === 0 ? (
+            <p className="font-display text-[22px] text-ink/30">{c.noItems}</p>
+          ) : (
+            <div className="divide-y divide-ink/10">
+              {classes.map((item, index) => {
+                const isEven = index % 2 === 0;
+                return (
+                  <div
+                    key={item.id}
+                    className="group grid gap-0 py-12 lg:grid-cols-2 lg:py-16"
+                  >
+                    {/* Изображение */}
+                    {item.image && (
+                      <div
+                        className={`mb-8 overflow-hidden lg:mb-0 ${
+                          isEven ? "lg:order-1 lg:pr-14" : "lg:order-2 lg:pl-14"
+                        }`}
+                      >
+                        <div className="relative aspect-[4/3] overflow-hidden">
+                          <Image
+                            src={item.image}
+                            alt={item.title}
+                            fill
+                            className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+                          />
+                        </div>
                       </div>
                     )}
-                    {item.duration_minutes && (
-                      <div>
-                        <p className="text-[10px] uppercase tracking-[0.15em] text-ink/35">{c.duration}</p>
-                        <p className="mt-0.5 text-sm text-ink/70">{item.duration_minutes} {t.common.minutes}</p>
+
+                    {/* Текст */}
+                    <div
+                      className={`flex flex-col justify-center ${
+                        item.image
+                          ? isEven
+                            ? "lg:order-2"
+                            : "lg:order-1"
+                          : "lg:col-span-2"
+                      }`}
+                    >
+                      <div className="flex items-start justify-between">
+                        <p className="caps text-accent">{item.type}</p>
+                        <span className="font-display text-[48px] leading-none text-ink/8">
+                          {String(index + 1).padStart(2, "0")}
+                        </span>
                       </div>
-                    )}
-                    {item.price && (
-                      <div>
-                        <p className="text-[10px] uppercase tracking-[0.15em] text-ink/35">{c.price}</p>
-                        <p className="mt-0.5 text-sm text-ink/70">
-                          {Number(item.price).toLocaleString("ru-RU")} ₽
+
+                      <h2 className="mt-4 font-display text-[30px] leading-tight md:text-[36px] lg:text-[40px]">
+                        {item.title}
+                      </h2>
+
+                      {item.description && (
+                        <p className="mt-4 text-[15px] leading-relaxed text-ink/60">
+                          {item.description}
                         </p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ))
-            )}
+                      )}
 
-            {/* CTA ячейка */}
-            <div className="border-b border-r border-ink/10 p-8 lg:p-10 flex flex-col justify-between">
-              <p className="font-display text-[22px] leading-snug text-ink/40">{c.ctaText}</p>
-              <Link
-                href="/contact"
-                className="mt-6 w-fit bg-ink px-6 py-3 text-xs uppercase tracking-[0.2em] text-white transition hover:bg-ink/80"
-              >
-                {t.common.writeUs}
-              </Link>
+                      <div className="mt-8 flex flex-wrap gap-x-8 gap-y-3 border-t border-ink/10 pt-6">
+                        {item.age_group && (
+                          <div>
+                            <p className="text-[10px] uppercase tracking-[0.15em] text-ink/35">{c.age}</p>
+                            <p className="mt-1 text-sm text-ink/70">{item.age_group}</p>
+                          </div>
+                        )}
+                        {item.duration_minutes && (
+                          <div>
+                            <p className="text-[10px] uppercase tracking-[0.15em] text-ink/35">{c.duration}</p>
+                            <p className="mt-1 text-sm text-ink/70">{item.duration_minutes}</p>
+                          </div>
+                        )}
+                        {item.price && (
+                          <div>
+                            <p className="text-[10px] uppercase tracking-[0.15em] text-ink/35">{c.price}</p>
+                            <p className="mt-1 text-sm text-ink/70">{item.price}</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
+          )}
+        </Container>
+      </section>
+
+      {/* CTA */}
+      <section className="border-t border-ink/10 py-16">
+        <Container>
+          <div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:justify-between">
+            <p className="font-display text-[22px] leading-snug text-ink/40 max-w-sm">{c.ctaText}</p>
+            <Link
+              href="/contact"
+              className="shrink-0 bg-ink px-6 py-3 text-xs uppercase tracking-[0.2em] text-white transition hover:bg-ink/80"
+            >
+              {t.common.writeUs}
+            </Link>
           </div>
         </Container>
       </section>
