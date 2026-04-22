@@ -2,15 +2,18 @@ import { NextRequest, NextResponse } from 'next/server'
 import pool from '@/lib/db'
 import nodemailer from 'nodemailer'
 
-const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 587,
-  secure: false,
-  auth: {
-    user: process.env.NEXT_PUBLIC_NODEMAILER_USER,
-    pass: process.env.NEXT_PUBLIC_NODEMAILER_PASSWORD,
-  },
-})
+function createTransporter() {
+  return nodemailer.createTransport({
+    host: 'smtp.gmail.com',
+    port: 587,
+    secure: false,
+    family: 4,
+    auth: {
+      user: process.env.NEXT_PUBLIC_NODEMAILER_USER,
+      pass: process.env.NEXT_PUBLIC_NODEMAILER_PASSWORD,
+    },
+  })
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -23,13 +26,16 @@ export async function POST(req: NextRequest) {
     const client = await pool.connect()
     try {
       await client.query('BEGIN')
+      await client.query("SET LOCAL lock_timeout = '3s'")
 
-      // 1. Блокируем строку слота (FOR UPDATE нельзя с GROUP BY)
+      // 1. Блокируем строку слота и получаем название
       const slotRes = await client.query<{
         max_participants: number | null;
         status: string;
+        title: string;
+        start_datetime: string;
       }>(
-        `SELECT max_participants, status FROM schedule WHERE id = $1 FOR UPDATE`,
+        `SELECT max_participants, status, title, start_datetime FROM schedule WHERE id = $1 FOR UPDATE`,
         [schedule_id]
       )
 
@@ -43,7 +49,7 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: 'Занятие недоступно для записи' }, { status: 400 })
       }
 
-      // 2. Считаем занятые места отдельным запросом (внутри той же транзакции)
+      // 2. Считаем занятые места
       if (slot.max_participants !== null) {
         const countRes = await client.query<{ booked: string }>(
           `SELECT COUNT(*) AS booked FROM bookings WHERE schedule_id = $1 AND status != 'cancelled'`,
@@ -55,25 +61,30 @@ export async function POST(req: NextRequest) {
         }
       }
 
-      await transporter.sendMail({
-        from: process.env.NEXT_PUBLIC_NODEMAILER_USER,
-        to: process.env.NEXT_PUBLIC_NODEMAILER_TO,
-        subject: `Новая запись на занятие`,
-        html: `
-          <h2>Новая запись на занятие</h2>
-          <p><strong>Имя:</strong> ${name}</p>
-          <p><strong>Телефон:</strong> ${phone}</p>
-          <p><strong>Email:</strong> ${email || '—'}</p>
-          <p><strong>ID занятия:</strong> ${schedule_id}</p>
-        `,
-      })
-
+      // 3. Сохраняем запись
       await client.query(
         `INSERT INTO bookings (schedule_id, name, phone, email) VALUES ($1, $2, $3, $4)`,
         [schedule_id, name.trim(), phone.trim(), email?.trim() || null]
       )
 
       await client.query('COMMIT')
+
+      // 4. Отправляем письмо после коммита в следующем тике — ответ уходит раньше
+      const mailPayload = {
+        from: process.env.NEXT_PUBLIC_NODEMAILER_USER,
+        to: process.env.NEXT_PUBLIC_NODEMAILER_TO,
+        subject: `Новая запись: ${slot.title}`,
+        html: `
+          <h2>Новая запись на занятие</h2>
+          <p><strong>Занятие:</strong> ${slot.title}</p>
+          <p><strong>Дата:</strong> ${new Date(slot.start_datetime).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
+          <p><strong>Имя:</strong> ${name}</p>
+          <p><strong>Телефон:</strong> ${phone}</p>
+          <p><strong>Email:</strong> ${email || '—'}</p>
+        `,
+      }
+      setImmediate(() => createTransporter().sendMail(mailPayload).catch(console.error))
+
       return NextResponse.json({ ok: true })
     } catch (err) {
       await client.query('ROLLBACK')

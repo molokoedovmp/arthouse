@@ -16,7 +16,7 @@ const RESOURCES: Record<string, ResourceConfig> = {
   },
   schedule: {
     table: 'schedule',
-    fields: ['service_id', 'start_datetime', 'max_participants', 'status'],
+    fields: ['title', 'description', 'type', 'age_group', 'duration_minutes', 'price', 'image', 'start_datetime', 'max_participants', 'status'],
   },
   events: {
     table: 'events',

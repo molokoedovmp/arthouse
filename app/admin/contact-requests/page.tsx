@@ -43,13 +43,13 @@ export default function ContactRequestsPage() {
   const totalPages = Math.ceil(total / 20)
 
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-8">
       <div className="mb-6">
         <h1 className="text-lg font-semibold text-gray-900">Заявки</h1>
         <p className="text-sm text-gray-500 mt-0.5">{total} записей</p>
       </div>
 
-      <div className="bg-white border border-gray-200">
+      <div className="overflow-x-auto bg-white border border-gray-200">
         {loading ? (
           <div className="p-10 text-center text-sm text-gray-400">Загрузка...</div>
         ) : rows.length === 0 ? (
@@ -97,7 +97,7 @@ export default function ContactRequestsPage() {
 
       {viewing && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white w-full max-w-lg">
+          <div className="bg-white w-full max-w-lg mx-4">
             <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
               <h2 className="font-semibold text-gray-900">Заявка #{viewing.id}</h2>
               <button onClick={() => setViewing(null)} className="text-gray-400 hover:text-gray-600 text-xl leading-none">×</button>

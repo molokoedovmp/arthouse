@@ -1,25 +1,32 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { ImageUpload } from '../../../components/admin/ImageUpload'
 
 interface ScheduleRow {
   id: number
-  service_id: number
-  service_title: string
+  title: string
+  description: string
+  type: string
+  age_group: string
+  duration_minutes: string
+  price: string
+  image: string
   start_datetime: string
-  max_participants: number
+  max_participants: number | ''
   status: string
 }
 
-interface Service {
-  id: number
-  title: string
-}
-
-const EMPTY = {
-  service_id: 0,
+const EMPTY: Omit<ScheduleRow, 'id'> = {
+  title: '',
+  description: '',
+  type: '',
+  age_group: '',
+  duration_minutes: '',
+  price: '',
+  image: '',
   start_datetime: '',
-  max_participants: 10,
+  max_participants: '',
   status: 'active',
 }
 
@@ -32,7 +39,10 @@ function toIsoUtcFromLocalDatetime(value: string) {
 
 function fmtDatetime(s: string) {
   if (!s) return '—'
-  return new Date(s).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+  return new Date(s).toLocaleString('ru-RU', {
+    day: '2-digit', month: '2-digit', year: 'numeric',
+    hour: '2-digit', minute: '2-digit',
+  })
 }
 
 function toDatetimeLocal(s: string) {
@@ -47,10 +57,9 @@ export default function SchedulePage() {
   const [total, setTotal] = useState(0)
   const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(true)
-  const [services, setServices] = useState<Service[]>([])
   const [modal, setModal] = useState(false)
   const [editing, setEditing] = useState<ScheduleRow | null>(null)
-  const [form, setForm] = useState(EMPTY)
+  const [form, setForm] = useState<Omit<ScheduleRow, 'id'>>(EMPTY)
   const [saving, setSaving] = useState(false)
 
   const fetchData = useCallback(async () => {
@@ -64,24 +73,31 @@ export default function SchedulePage() {
 
   useEffect(() => { fetchData() }, [fetchData])
 
-  useEffect(() => {
-    fetch('/api/admin/services?all=true').then(r => r.json()).then(d => setServices(d.rows ?? []))
-  }, [])
-
   function openCreate() {
     setEditing(null)
-    setForm({ ...EMPTY, service_id: services[0]?.id ?? 0 })
+    setForm(EMPTY)
     setModal(true)
   }
 
   function openEdit(row: ScheduleRow) {
     setEditing(row)
-    setForm({ service_id: row.service_id, start_datetime: toDatetimeLocal(row.start_datetime), max_participants: row.max_participants ?? 10, status: row.status ?? 'active' })
+    setForm({
+      title: row.title ?? '',
+      description: row.description ?? '',
+      type: row.type ?? '',
+      age_group: row.age_group ?? '',
+      duration_minutes: row.duration_minutes ?? '',
+      price: row.price ?? '',
+      image: row.image ?? '',
+      start_datetime: toDatetimeLocal(row.start_datetime),
+      max_participants: row.max_participants ?? '',
+      status: row.status ?? 'active',
+    })
     setModal(true)
   }
 
   async function handleDelete(id: number) {
-    if (!confirm('Удалить запись?')) return
+    if (!confirm('Удалить запись из расписания?')) return
     await fetch(`/api/admin/schedule/${id}`, { method: 'DELETE' })
     fetchData()
   }
@@ -94,6 +110,7 @@ export default function SchedulePage() {
     const payload = {
       ...form,
       start_datetime: toIsoUtcFromLocalDatetime(form.start_datetime),
+      max_participants: form.max_participants === '' ? null : Number(form.max_participants),
     }
     await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
     setSaving(false)
@@ -104,7 +121,7 @@ export default function SchedulePage() {
   const totalPages = Math.ceil(total / 20)
 
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-8">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-lg font-semibold text-gray-900">Расписание</h1>
@@ -115,7 +132,7 @@ export default function SchedulePage() {
         </button>
       </div>
 
-      <div className="bg-white border border-gray-200">
+      <div className="overflow-x-auto bg-white border border-gray-200">
         {loading ? (
           <div className="p-10 text-center text-sm text-gray-400">Загрузка...</div>
         ) : rows.length === 0 ? (
@@ -124,8 +141,10 @@ export default function SchedulePage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gray-200 bg-gray-50 text-left">
-                <th className="px-4 py-3 font-medium text-gray-600">Услуга</th>
+                <th className="px-4 py-3 font-medium text-gray-600">Фото</th>
+                <th className="px-4 py-3 font-medium text-gray-600">Название</th>
                 <th className="px-4 py-3 font-medium text-gray-600">Дата и время</th>
+                <th className="px-4 py-3 font-medium text-gray-600">Цена</th>
                 <th className="px-4 py-3 font-medium text-gray-600">Мест</th>
                 <th className="px-4 py-3 font-medium text-gray-600">Статус</th>
                 <th className="px-4 py-3" />
@@ -134,9 +153,16 @@ export default function SchedulePage() {
             <tbody className="divide-y divide-gray-100">
               {rows.map((row) => (
                 <tr key={row.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-3 font-medium text-gray-900">{row.service_title ?? `#${row.service_id}`}</td>
-                  <td className="px-4 py-3 text-gray-500">{fmtDatetime(row.start_datetime)}</td>
-                  <td className="px-4 py-3 text-gray-500">{row.max_participants}</td>
+                  <td className="px-4 py-3">
+                    {row.image
+                      // eslint-disable-next-line @next/next/no-img-element
+                      ? <img src={row.image} alt="" className="h-10 w-10 object-cover border border-gray-200" />
+                      : <div className="h-10 w-10 bg-gray-100 border border-gray-200" />}
+                  </td>
+                  <td className="px-4 py-3 font-medium text-gray-900">{row.title || '—'}</td>
+                  <td className="px-4 py-3 text-gray-500 whitespace-nowrap">{fmtDatetime(row.start_datetime)}</td>
+                  <td className="px-4 py-3 text-gray-500">{row.price || '—'}</td>
+                  <td className="px-4 py-3 text-gray-500">{row.max_participants || '∞'}</td>
                   <td className="px-4 py-3">
                     <span className={`inline-block px-2 py-0.5 text-xs rounded-full ${row.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'}`}>
                       {row.status === 'active' ? 'Активно' : 'Отменено'}
@@ -163,18 +189,39 @@ export default function SchedulePage() {
 
       {modal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white w-full max-w-lg max-h-[90vh] overflow-auto">
+          <div className="bg-white w-full max-w-lg mx-4 max-h-[90vh] overflow-auto">
             <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
               <h2 className="font-semibold text-gray-900">{editing ? 'Редактировать занятие' : 'Новое занятие'}</h2>
               <button onClick={() => setModal(false)} className="text-gray-400 hover:text-gray-600 text-xl leading-none">×</button>
             </div>
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Услуга *</label>
-                <select value={form.service_id} onChange={e => setForm(f => ({ ...f, service_id: parseInt(e.target.value) }))} required className="w-full border border-gray-300 px-3 py-2 text-sm focus:border-gray-500 focus:outline-none bg-white">
-                  <option value="">— Выберите —</option>
-                  {services.map(s => <option key={s.id} value={s.id}>{s.title}</option>)}
-                </select>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Название *</label>
+                <input type="text" value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} required className="w-full border border-gray-300 px-3 py-2 text-sm focus:border-gray-500 focus:outline-none" />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Описание</label>
+                <textarea value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} rows={3} className="w-full border border-gray-300 px-3 py-2 text-sm focus:border-gray-500 focus:outline-none resize-none" />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">Возрастная группа</label>
+                  <input type="text" value={form.age_group} onChange={e => setForm(f => ({ ...f, age_group: e.target.value }))} placeholder="6+" className="w-full border border-gray-300 px-3 py-2 text-sm focus:border-gray-500 focus:outline-none" />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">Тип</label>
+                  <input type="text" value={form.type} onChange={e => setForm(f => ({ ...f, type: e.target.value }))} placeholder="для детей" className="w-full border border-gray-300 px-3 py-2 text-sm focus:border-gray-500 focus:outline-none" />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">Длительность</label>
+                  <input type="text" value={form.duration_minutes} onChange={e => setForm(f => ({ ...f, duration_minutes: e.target.value }))} placeholder="60 мин" className="w-full border border-gray-300 px-3 py-2 text-sm focus:border-gray-500 focus:outline-none" />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">Цена</label>
+                  <input type="text" value={form.price} onChange={e => setForm(f => ({ ...f, price: e.target.value }))} placeholder="1 500 ₽" className="w-full border border-gray-300 px-3 py-2 text-sm focus:border-gray-500 focus:outline-none" />
+                </div>
               </div>
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">Дата и время *</label>
@@ -183,7 +230,7 @@ export default function SchedulePage() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-medium text-gray-600 mb-1">Макс. участников</label>
-                  <input type="number" value={form.max_participants} onChange={e => setForm(f => ({ ...f, max_participants: parseInt(e.target.value) || 1 }))} min="1" className="w-full border border-gray-300 px-3 py-2 text-sm focus:border-gray-500 focus:outline-none" />
+                  <input type="number" value={form.max_participants} onChange={e => setForm(f => ({ ...f, max_participants: parseInt(e.target.value) || '' }))} min="1" placeholder="Без лимита" className="w-full border border-gray-300 px-3 py-2 text-sm focus:border-gray-500 focus:outline-none" />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-gray-600 mb-1">Статус</label>
@@ -192,6 +239,10 @@ export default function SchedulePage() {
                     <option value="cancelled">Отменено</option>
                   </select>
                 </div>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Изображение</label>
+                <ImageUpload value={form.image} onChange={url => setForm(f => ({ ...f, image: url }))} table="schedule" />
               </div>
               <div className="flex justify-end gap-3 pt-2 border-t border-gray-100">
                 <button type="button" onClick={() => setModal(false)} className="px-4 py-2 text-sm border border-gray-300 hover:border-gray-500 transition-colors">Отмена</button>

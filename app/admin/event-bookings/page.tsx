@@ -71,13 +71,13 @@ export default function EventBookingsPage() {
   const totalPages = Math.ceil(total / 20)
 
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-8">
       <div className="mb-6">
         <h1 className="text-lg font-semibold text-gray-900">Записи на мероприятия</h1>
         <p className="text-sm text-gray-500 mt-0.5">{total} записей</p>
       </div>
 
-      <div className="bg-white border border-gray-200">
+      <div className="overflow-x-auto bg-white border border-gray-200">
         {loading ? (
           <div className="p-10 text-center text-sm text-gray-400">Загрузка...</div>
         ) : rows.length === 0 ? (

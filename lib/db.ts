@@ -7,6 +7,8 @@ if (!globalForPg._pgPool) {
     connectionString: process.env.DATABASE_URL,
     ssl: { rejectUnauthorized: false },
     max: 10,
+    connectionTimeoutMillis: 5000,
+    idleTimeoutMillis: 30000,
   })
 }
 

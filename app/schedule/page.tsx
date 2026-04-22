@@ -13,14 +13,14 @@ export const metadata = {
   description: "Единое расписание занятий и анонсов мероприятий художественной мастерской Арт Хаус.",
 };
 
-type ServiceRow = {
-  schedule_id: number;
+type ScheduleRow = {
+  id: number;
   start_datetime: Date;
   max_participants: number | null;
-  schedule_status: string;
-  service_title: string;
-  service_description: string | null;
-  service_image: string | null;
+  status: string;
+  title: string;
+  description: string | null;
+  image: string | null;
   age_group: string | null;
   duration_minutes: string | null;
   price: string | null;
@@ -94,18 +94,14 @@ export default async function SchedulePage() {
     ? "В расписании пока нет активных занятий и мероприятий."
     : "There are no active classes or events in the schedule yet.";
 
-  const servicesRes = await pool.query<ServiceRow>(
-    `SELECT s.id AS schedule_id, s.start_datetime, s.max_participants, s.status AS schedule_status,
-            sv.title AS service_title, sv.description AS service_description, sv.image AS service_image,
-            sv.age_group, sv.duration_minutes,
-            sv.price, sv.type,
+  const servicesRes = await pool.query<ScheduleRow>(
+    `SELECT s.id, s.start_datetime, s.max_participants, s.status,
+            s.title, s.description, s.image, s.age_group, s.duration_minutes, s.price, s.type,
             COUNT(b.id) FILTER (WHERE b.status != 'cancelled') AS booked
      FROM schedule s
-     JOIN services sv ON s.service_id = sv.id
      LEFT JOIN bookings b ON b.schedule_id = s.id
      WHERE s.start_datetime >= NOW() AND s.status = 'active'
-     GROUP BY s.id, s.start_datetime, s.max_participants, s.status,
-              sv.title, sv.description, sv.image, sv.age_group, sv.duration_minutes, sv.price, sv.type
+     GROUP BY s.id
      ORDER BY s.start_datetime`
   );
 
@@ -127,17 +123,17 @@ export default async function SchedulePage() {
 
     return {
       kind: "service" as const,
-      id: row.schedule_id,
+      id: row.id,
       startsAt: start,
-      title: row.service_title,
-      description: row.service_description ?? "",
+      title: row.title,
+      description: row.description ?? "",
       timeLabel: fmtRange(start),
-      image: row.service_image ?? null,
-      status: row.schedule_status,
+      image: row.image ?? null,
+      status: row.status,
       type: row.type ?? "",
       ageGroup: row.age_group ?? "",
-      durationMinutes: row.duration_minutes,
-      price: row.price,
+      durationMinutes: row.duration_minutes ?? "",
+      price: row.price ?? "",
       maxParticipants: row.max_participants,
       booked,
       availableSpots,

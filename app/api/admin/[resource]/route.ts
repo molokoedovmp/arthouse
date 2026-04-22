@@ -16,7 +16,7 @@ const RESOURCES: Record<string, ResourceConfig> = {
   },
   schedule: {
     table: 'schedule',
-    fields: ['service_id', 'start_datetime', 'max_participants', 'status'],
+    fields: ['title', 'description', 'type', 'age_group', 'duration_minutes', 'price', 'image', 'start_datetime', 'max_participants', 'status'],
   },
   events: {
     table: 'events',
@@ -78,26 +78,14 @@ export async function GET(
     total = parseInt(countRes.rows[0].count)
 
     const query = all
-      ? `SELECT b.*, s.start_datetime, sv.title AS service_title
+      ? `SELECT b.*, s.start_datetime, s.title AS service_title
          FROM bookings b
          JOIN schedule s ON b.schedule_id = s.id
-         JOIN services sv ON s.service_id = sv.id
          ORDER BY b.created_at DESC`
-      : `SELECT b.*, s.start_datetime, sv.title AS service_title
+      : `SELECT b.*, s.start_datetime, s.title AS service_title
          FROM bookings b
          JOIN schedule s ON b.schedule_id = s.id
-         JOIN services sv ON s.service_id = sv.id
          ORDER BY b.created_at DESC LIMIT $1 OFFSET $2`
-
-    const res = all ? await pool.query(query) : await pool.query(query, [limit, offset])
-    rows = res.rows
-  } else if (params.resource === 'schedule') {
-    const countRes = await pool.query('SELECT COUNT(*) FROM schedule')
-    total = parseInt(countRes.rows[0].count)
-
-    const query = all
-      ? `SELECT s.*, sv.title AS service_title FROM schedule s LEFT JOIN services sv ON s.service_id = sv.id ORDER BY s.start_datetime`
-      : `SELECT s.*, sv.title AS service_title FROM schedule s LEFT JOIN services sv ON s.service_id = sv.id ORDER BY s.start_datetime LIMIT $1 OFFSET $2`
 
     const res = all ? await pool.query(query) : await pool.query(query, [limit, offset])
     rows = res.rows

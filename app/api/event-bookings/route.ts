@@ -1,6 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server'
 import pool from '@/lib/db'
-import { sendAdminBookingNotification } from '@/lib/email'
+import nodemailer from 'nodemailer'
+
+function createTransporter() {
+  return nodemailer.createTransport({
+    host: 'smtp.gmail.com',
+    port: 587,
+    secure: false,
+    family: 4,
+    auth: {
+      user: process.env.NEXT_PUBLIC_NODEMAILER_USER,
+      pass: process.env.NEXT_PUBLIC_NODEMAILER_PASSWORD,
+    },
+  })
+}
 
 export async function POST(req: NextRequest) {
   const { event_id, name, phone, email } = await req.json()
@@ -42,7 +55,20 @@ export async function POST(req: NextRequest) {
     )
     await client.query('COMMIT')
 
-    sendAdminBookingNotification({ eventTitle: title, eventDate: event_date, name, phone, email }).catch(console.error)
+    const mailPayload = {
+      from: process.env.NEXT_PUBLIC_NODEMAILER_USER,
+      to: process.env.NEXT_PUBLIC_NODEMAILER_TO,
+      subject: `Новая запись на мероприятие: ${title}`,
+      html: `
+        <h2>Новая запись на мероприятие</h2>
+        <p><strong>Мероприятие:</strong> ${title}</p>
+        ${event_date ? `<p><strong>Дата:</strong> ${new Date(event_date).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>` : ''}
+        <p><strong>Имя:</strong> ${name}</p>
+        <p><strong>Телефон:</strong> ${phone}</p>
+        <p><strong>Email:</strong> ${email || '—'}</p>
+      `,
+    }
+    setImmediate(() => createTransporter().sendMail(mailPayload).catch(console.error))
 
     return NextResponse.json({ id: result.rows[0].id }, { status: 201 })
   } catch (err) {

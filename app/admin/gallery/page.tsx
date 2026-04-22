@@ -61,7 +61,7 @@ export default function GalleryPage() {
   const totalPages = Math.ceil(total / 20)
 
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-8">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-lg font-semibold text-gray-900">Галерея</h1>
@@ -72,7 +72,7 @@ export default function GalleryPage() {
         </button>
       </div>
 
-      <div className="bg-white border border-gray-200">
+      <div className="overflow-x-auto bg-white border border-gray-200">
         {loading ? (
           <div className="p-10 text-center text-sm text-gray-400">Загрузка...</div>
         ) : rows.length === 0 ? (
@@ -119,7 +119,7 @@ export default function GalleryPage() {
 
       {modal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white w-full max-w-lg max-h-[90vh] overflow-auto">
+          <div className="bg-white w-full max-w-lg mx-4 max-h-[90vh] overflow-auto">
             <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
               <h2 className="font-semibold text-gray-900">{editing ? 'Редактировать фото' : 'Новое фото'}</h2>
               <button onClick={() => setModal(false)} className="text-gray-400 hover:text-gray-600 text-xl leading-none">×</button>
