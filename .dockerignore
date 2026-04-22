@@ -1,5 +1,6 @@
 .git
 .gitignore
+.github
 node_modules
 .next
 .env
@@ -7,3 +8,8 @@ node_modules
 .DS_Store
 *.md
 .claude
+memory
+*.log
+npm-debug.log*
+.eslintcache
+tsconfig.tsbuildinfo
