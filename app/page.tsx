@@ -14,58 +14,54 @@ export const metadata = {
   description: "АртХаус — территория творчества, занятия и авторские картины.",
 };
 
-const daysOrder = ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"];
-const DAYS_RU = ["Воскресенье", "Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота"];
+const TZ = "Europe/Moscow";
 
 function fmtTime(dt: Date) {
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${pad(dt.getHours())}:${pad(dt.getMinutes())}`;
+  return new Intl.DateTimeFormat("ru-RU", { hour: "2-digit", minute: "2-digit", timeZone: TZ }).format(dt);
 }
 
 export default async function HomePage() {
   const lang = await getLang();
   const t = getT(lang);
   const h = t.home;
+  const isRu = lang === "ru";
 
+  // Upcoming schedule with images
   const scheduleRes = await pool.query<{
+    id: number;
     start_datetime: Date;
-    service_title: string;
-    age_group: string;
-    duration_minutes: string;
+    title: string;
+    age_group: string | null;
+    duration_minutes: string | null;
+    price: string | null;
+    image: string | null;
+    max_participants: number | null;
+    booked: string;
   }>(
-    `SELECT s.start_datetime, s.title AS service_title, s.age_group, s.duration_minutes
+    `SELECT s.id, s.start_datetime, s.title, s.age_group, s.duration_minutes, s.price, s.image,
+            s.max_participants, COUNT(b.id) FILTER (WHERE b.status != 'cancelled') AS booked
      FROM schedule s
+     LEFT JOIN bookings b ON b.schedule_id = s.id
      WHERE s.start_datetime >= NOW() AND s.status = 'active'
+     GROUP BY s.id
      ORDER BY s.start_datetime
-     LIMIT 50`
+     LIMIT 6`
   );
+  const scheduleItems = scheduleRes.rows;
 
-  const scheduleByDay: Record<string, Array<{ title: string; time: string; age: string }>> = {};
-  const seenSlots = new Set<string>();
-  for (const row of scheduleRes.rows) {
-    const dt = new Date(row.start_datetime);
-    const dayName = DAYS_RU[dt.getDay()];
-    const slotKey = `${dt.getDay()}-${dt.getHours()}-${dt.getMinutes()}-${row.service_title}`;
-    if (seenSlots.has(slotKey)) continue;
-    seenSlots.add(slotKey);
-    if (!scheduleByDay[dayName]) scheduleByDay[dayName] = [];
-    scheduleByDay[dayName].push({
-      title: row.service_title,
-      time: fmtTime(dt),
-      age: row.age_group ?? "",
-    });
-  }
-
-  type ScheduleEntry = { day: string; title: string; time: string; age: string };
-  const scheduleItems: ScheduleEntry[] = [];
-  for (const day of daysOrder) {
-    const slots = scheduleByDay[day];
-    if (slots) {
-      for (const slot of slots) {
-        scheduleItems.push({ day, ...slot });
-      }
-    }
-  }
+  // Services catalog with images
+  const servicesRes = await pool.query<{
+    id: number;
+    title: string;
+    description: string;
+    type: string;
+    image: string | null;
+    age_group: string | null;
+    price: string | null;
+  }>(
+    `SELECT id, title, description, type, image, age_group, price FROM services ORDER BY id LIMIT 4`
+  );
+  const services = servicesRes.rows;
 
   const paintingsRes = await pool.query<{
     id: number;
@@ -78,16 +74,6 @@ export default async function HomePage() {
     `SELECT id, title, year, technique, size, image FROM paintings ORDER BY id DESC LIMIT 5`
   );
   const paintings = paintingsRes.rows;
-
-  const servicesRes = await pool.query<{
-    id: number;
-    title: string;
-    description: string;
-    type: string;
-  }>(
-    `SELECT id, title, description, type FROM services ORDER BY id LIMIT 4`
-  );
-  const services = servicesRes.rows;
 
   const heroDir = `${process.cwd()}/public/hero`;
   const heroFiles = await readdir(heroDir);
@@ -105,161 +91,203 @@ export default async function HomePage() {
       {/* ── Hero ── */}
       <section className="border-b border-ink/10">
         <div className="grid md:grid-cols-2 md:items-center" style={{ minHeight: "calc(100vh - 84px)" }}>
-          {/* Text */}
           <div className="flex flex-col justify-center px-6 py-14 md:px-12 lg:px-20">
             <p className="caps text-sm text-ink/40">{h.heroLink}</p>
             <h1 className="mt-4 font-display text-[34px] leading-[1.1] md:text-[46px] lg:text-[56px]">
-              {lang === "en" ? (
-                <>Creative Territory<br />of Olga Smirnova</>
-              ) : (
-                <>
-                  Территория творчества<br />Ольги Смирновой
-                </>
-              )}
+              {isRu ? <>Территория творчества<br />Ольги Смирновой</> : <>Creative Territory<br />of Olga Smirnova</>}
             </h1>
             <p className="mt-4 max-w-md text-[14px] leading-relaxed text-ink/50">{h.heroSubtitle}</p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link
-                href="/classes"
-                className="bg-ink px-6 py-3 text-xs uppercase tracking-[0.2em] text-white transition hover:bg-ink/80"
-              >
+              <Link href="/schedule" className="bg-ink px-6 py-3 text-xs uppercase tracking-[0.2em] text-white transition hover:bg-ink/80">
                 {t.common.register}
               </Link>
-              <Link
-                href="/about"
-                className="border border-ink/20 px-6 py-3 text-xs uppercase tracking-[0.2em] text-ink transition hover:border-ink"
-              >
-                {lang === "ru" ? "О проекте" : "About"}
+              <Link href="/about" className="border border-ink/20 px-6 py-3 text-xs uppercase tracking-[0.2em] text-ink transition hover:border-ink">
+                {isRu ? "О проекте" : "About"}
               </Link>
             </div>
           </div>
-          {/* Photo */}
           <div className="relative h-[60vw] md:h-full" style={{ minHeight: "400px" }}>
             <HeroCarousel images={heroImages} alt="Арт Хаус" />
           </div>
         </div>
       </section>
 
-      {/* ── Занятия + Расписание ── */}
-      <section className="border-t border-ink/10">
-        <div className="w-full">
-          <div className="border-b border-ink/10 px-2 py-6 text-center sm:px-6 lg:px-8">
-            <p className="font-display whitespace-nowrap text-[clamp(21px,5.1vw,36px)] leading-none text-ink">
-              {lang === "ru" ? "Весенняя акция -20% на все занятия." : "Spring offer -20% on all classes."}
-            </p>
+      {/* ── Promo banner ── */}
+      <section className="border-b border-ink/10">
+        <div className="px-4 py-6 text-center">
+          <p className="font-display whitespace-nowrap text-[clamp(18px,4.5vw,34px)] leading-none text-ink">
+            {isRu ? "Весенняя акция -20% на все занятия." : "Spring offer -20% on all classes."}
+          </p>
+        </div>
+      </section>
+
+      {/* ── Ближайшие занятия ── */}
+      <section className="border-b border-ink/10 py-12 md:py-16">
+        <div className="px-6 md:px-8 lg:px-12">
+          <div className="mb-8 flex items-baseline justify-between">
+            <p className="caps text-ink/40">{isRu ? "Ближайшие занятия" : "Upcoming classes"}</p>
+            <Link href="/schedule" className="caps text-xs text-ink/40 transition hover:text-ink">
+              {isRu ? "Всё расписание →" : "Full schedule →"}
+            </Link>
           </div>
 
-          <div className="grid border-b border-ink/10 lg:grid-cols-[1fr_320px] lg:items-stretch">
+          {scheduleItems.length === 0 ? (
+            <p className="py-8 text-sm text-ink/40">
+              {isRu ? "Нет предстоящих занятий" : "No upcoming classes"}
+            </p>
+          ) : (
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {scheduleItems.map((item) => {
+                const dt = new Date(item.start_datetime);
+                const booked = Number(item.booked);
+                const available = item.max_participants !== null ? item.max_participants - booked : null;
+                const full = available !== null && available <= 0;
 
-            {/* Занятия — левая колонка */}
-            <div className="flex flex-col border-b border-ink/10 lg:border-b-0 lg:border-r lg:border-ink/10">
-              <div className="flex items-center justify-between border-b border-ink/10 px-6 py-5 lg:px-8">
-                <p className="caps text-ink/40">{h.classesLabel}</p>
-                <Link href="/classes" className="caps text-ink/40 transition hover:text-ink">
-                  {h.classesAll}
-                </Link>
-              </div>
-              <div className="grid flex-1 md:grid-cols-2">
-                {services.length === 0 ? (
-                  <div className="col-span-2 p-8 text-sm text-ink/40">{h.classesEmpty}</div>
-                ) : (
-                  services.map((item, index) => (
-                    <Link
-                      key={item.id}
-                      href="/classes"
-                      className="group border-b border-r border-ink/10 p-8 transition-colors hover:bg-stone/50 lg:p-10"
-                    >
-                      <div className="flex items-start justify-between">
-                        <p className="caps text-accent">{item.type}</p>
-                        <span className="font-display text-[36px] leading-none text-ink/10 transition group-hover:text-ink/20">
+                return (
+                  <article key={item.id} className="group flex flex-col border border-ink/10 bg-paper overflow-hidden">
+                    {/* Image with date badge */}
+                    <div className="relative aspect-[4/3] overflow-hidden bg-stone">
+                      {item.image ? (
+                        <Image
+                          src={item.image}
+                          alt={item.title}
+                          fill
+                          className="object-cover transition-transform duration-700 group-hover:scale-[1.04]"
+                        />
+                      ) : (
+                        <div className="absolute inset-0 bg-gradient-to-br from-stone to-ink/8" />
+                      )}
+                      {/* Date badge */}
+                      <div className="absolute left-0 top-0 bg-ink px-3 py-2 text-center text-white">
+                        <p className="font-display text-[26px] leading-none">
+                          {new Intl.DateTimeFormat("ru-RU", { day: "2-digit", timeZone: TZ }).format(dt)}
+                        </p>
+                        <p className="mt-0.5 text-[10px] uppercase tracking-[0.1em] text-white/65">
+                          {new Intl.DateTimeFormat(isRu ? "ru-RU" : "en-US", { month: "short", timeZone: TZ }).format(dt)}
+                        </p>
+                      </div>
+                      {/* Full badge */}
+                      {full && (
+                        <div className="absolute right-0 top-0 bg-ink/70 px-3 py-1.5 text-[10px] uppercase tracking-[0.1em] text-white/80">
+                          {isRu ? "Мест нет" : "Full"}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Info */}
+                    <div className="flex flex-1 flex-col p-4">
+                      <p className="text-[10px] uppercase tracking-[0.15em] text-ink/35">
+                        {new Intl.DateTimeFormat(isRu ? "ru-RU" : "en-US", { weekday: "long", timeZone: TZ }).format(dt)}
+                        {" · "}
+                        {fmtTime(dt)}
+                      </p>
+                      <h3 className="mt-2 font-display text-[20px] leading-snug">{item.title}</h3>
+                      <div className="mt-auto flex items-end justify-between pt-4">
+                        <div className="flex gap-3">
+                          {item.price && <p className="text-xs text-ink/50">{item.price}</p>}
+                          {item.age_group && <p className="text-xs text-ink/40">{item.age_group}</p>}
+                        </div>
+                        {available !== null && !full && (
+                          <p className="text-xs text-ink/35">
+                            {isRu ? `${available} св. мест` : `${available} left`}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* ── Наши занятия (услуги с фото) ── */}
+      <section className="border-b border-ink/10 py-12 md:py-16">
+        <div className="px-6 md:px-8 lg:px-12">
+          <div className="mb-8 flex items-baseline justify-between">
+            <p className="caps text-ink/40">{h.classesLabel}</p>
+            <Link href="/classes" className="caps text-xs text-ink/40 transition hover:text-ink">
+              {h.classesAll}
+            </Link>
+          </div>
+
+          {services.length === 0 ? (
+            <p className="py-8 text-sm text-ink/40">{h.classesEmpty}</p>
+          ) : (
+            <div className="grid gap-px bg-ink/10 border border-ink/10 sm:grid-cols-2 lg:grid-cols-4">
+              {services.map((item, index) => (
+                <Link
+                  key={item.id}
+                  href="/classes"
+                  className="group flex flex-col bg-paper overflow-hidden"
+                >
+                  <div className="relative aspect-[3/2] overflow-hidden bg-stone">
+                    {item.image ? (
+                      <Image
+                        src={item.image}
+                        alt={item.title}
+                        fill
+                        className="object-cover transition-transform duration-700 group-hover:scale-[1.04]"
+                      />
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <span className="font-display text-[52px] text-ink/8">
                           {String(index + 1).padStart(2, "0")}
                         </span>
                       </div>
-                      <h3 className="mt-4 font-display text-[24px] leading-tight">{item.title}</h3>
-                      {item.description && <p className="mt-2 text-sm text-ink/60">{item.description}</p>}
-                    </Link>
-                  ))
-                )}
-              </div>
-            </div>
-
-            {/* Расписание — правая колонка */}
-            <div className="flex flex-col">
-              <div className="flex items-center justify-between border-b border-ink/10 px-6 py-5">
-                <p className="caps text-ink/40">{h.scheduleLabel}</p>
-                <Link href="/schedule" className="caps text-ink/40 transition hover:text-ink">
-                  {h.scheduleFull}
-                </Link>
-              </div>
-              <div className="flex-1 divide-y divide-ink/10">
-                {scheduleItems.length > 0 ? scheduleItems.map((item, index) => (
-                  <div key={index} className="px-6 py-4">
-                    <p className="text-[10px] uppercase tracking-[0.15em] text-ink/35">
-                      {t.schedule.daysLong[item.day] ?? item.day}
-                    </p>
-                    <p className="mt-1 font-display text-[17px] leading-snug">{item.title}</p>
-                    <p className="mt-0.5 text-xs text-ink/50">{item.time}{item.age ? ` · ${item.age}` : ""}</p>
+                    )}
                   </div>
-                )) : (
-                  <div className="px-6 py-8 text-sm text-ink/40">
-                    {h.scheduleEmpty}
+                  <div className="flex flex-1 flex-col p-5">
+                    {item.type && <p className="caps text-[10px] text-accent">{item.type}</p>}
+                    <h3 className="mt-2 font-display text-[18px] leading-tight">{item.title}</h3>
+                    {item.description && (
+                      <p className="mt-2 line-clamp-2 text-[13px] leading-snug text-ink/50">
+                        {item.description}
+                      </p>
+                    )}
+                    <div className="mt-auto flex gap-4 pt-4">
+                      {item.price && <p className="text-xs text-ink/40">{item.price}</p>}
+                      {item.age_group && <p className="text-xs text-ink/40">{item.age_group}</p>}
+                    </div>
                   </div>
-                )}
-              </div>
-              <div className="border-t border-ink/10 p-6">
-                <Link
-                  href="/schedule"
-                  className="block w-full bg-ink py-3 text-center text-xs uppercase tracking-[0.2em] text-white transition hover:bg-ink/80"
-                >
-                  {t.common.register}
                 </Link>
-              </div>
+              ))}
             </div>
+          )}
+        </div>
+      </section>
 
+      {/* ── Галерея учеников ── */}
+      <section className="border-t border-ink/10">
+        <div className="grid lg:grid-cols-2 lg:items-stretch">
+          <div className="relative aspect-square overflow-hidden bg-stone">
+            <Image src="/images/gaallery.jpg" alt="Галерея работ" fill className="object-cover" />
+          </div>
+          <div className="flex flex-col justify-center px-8 py-16 md:px-16 lg:px-20 lg:py-24">
+            <p className="caps text-ink/40">{h.galleryLabel}</p>
+            <h2 className="mt-3 font-display text-3xl italic leading-tight lg:text-4xl">{h.galleryTitle}</h2>
+            <p className="mt-4 max-w-lg text-sm leading-relaxed text-ink/60">{h.galleryText}</p>
+            <Link href="/gallery" className="mt-6 w-fit text-xs uppercase tracking-[0.2em] text-ink/50 transition hover:text-ink">
+              {h.galleryLink}
+            </Link>
           </div>
         </div>
       </section>
 
       {/* ── Каталог картин ── */}
       <section className="border-t border-ink/10">
-        <div className="grid lg:grid-cols-[1fr_1fr] lg:items-stretch">
-          <div className="flex flex-col justify-center px-8 py-16 md:px-16 lg:px-20 lg:py-24">
+        <div className="grid lg:grid-cols-2 lg:items-stretch">
+          <div className="flex flex-col justify-center px-8 py-16 md:px-16 lg:px-20 lg:py-24 lg:order-first">
             <p className="caps text-ink/40">{h.catalogLabel}</p>
-            <h2 className="mt-3 font-display text-3xl italic leading-tight lg:text-4xl">
-              {h.catalogTitle}
-            </h2>
+            <h2 className="mt-3 font-display text-3xl italic leading-tight lg:text-4xl">{h.catalogTitle}</h2>
             <p className="mt-4 max-w-lg text-sm leading-relaxed text-ink/60">{h.catalogText}</p>
-            <Link
-              href="/paintings"
-              className="mt-6 w-fit text-xs uppercase tracking-[0.2em] text-ink/50 transition hover:text-ink"
-            >
+            <Link href="/paintings" className="mt-6 w-fit text-xs uppercase tracking-[0.2em] text-ink/50 transition hover:text-ink">
               {h.catalogLink}
             </Link>
           </div>
           <div className="relative aspect-square overflow-hidden bg-stone">
             <Image src="/images/IMG_8891.jpg" alt="Арт Хаус студия" fill className="object-cover" />
-          </div>
-        </div>
-      </section>
-
-      {/* ── Галерея учеников ── */}
-      <section className="border-t border-ink/10">
-        <div className="grid lg:grid-cols-[1fr_1fr] lg:items-stretch">
-          <div className="relative aspect-square overflow-hidden bg-stone lg:order-first">
-            <Image src="/images/gaallery.jpg" alt="Галерея работ" fill className="object-cover" />
-          </div>
-          <div className="flex flex-col justify-center px-8 py-16 md:px-16 lg:px-20 lg:py-24">
-            <p className="caps text-ink/40">{h.galleryLabel}</p>
-            <h2 className="mt-3 font-display text-3xl italic leading-tight lg:text-4xl">
-              {h.galleryTitle}
-            </h2>
-            <p className="mt-4 max-w-lg text-sm leading-relaxed text-ink/60">{h.galleryText}</p>
-            <Link
-              href="/gallery"
-              className="mt-6 w-fit text-xs uppercase tracking-[0.2em] text-ink/50 transition hover:text-ink"
-            >
-              {h.galleryLink}
-            </Link>
           </div>
         </div>
       </section>
@@ -272,23 +300,17 @@ export default async function HomePage() {
       {/* ── Связаться ── */}
       <section className="border-t border-ink/10 bg-[#f5f3f0]">
         <div className="flex flex-col items-center justify-center px-6 py-16 text-center lg:py-20">
-          <h2 className="font-display text-[32px] leading-tight md:text-[40px]">
-            {t.contact.heading}
-          </h2>
+          <h2 className="font-display text-[32px] leading-tight md:text-[40px]">{t.contact.heading}</h2>
           <p className="mt-4 max-w-md text-sm leading-relaxed text-ink/50">
-            {lang === "ru"
+            {isRu
               ? "Напишите нам, если хотите записаться на занятие, узнать о мероприятиях или задать вопрос."
               : "Get in touch to book a class, learn about upcoming events or ask a question."}
           </p>
-          <Link
-            href="/contact"
-            className="mt-8 bg-ink px-8 py-4 text-xs uppercase tracking-[0.2em] text-white transition hover:bg-ink/80"
-          >
+          <Link href="/contact" className="mt-8 bg-ink px-8 py-4 text-xs uppercase tracking-[0.2em] text-white transition hover:bg-ink/80">
             {t.common.writeUs}
           </Link>
         </div>
       </section>
-
     </div>
   );
 }
