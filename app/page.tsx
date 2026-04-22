@@ -190,41 +190,75 @@ export default async function HomePage() {
           </div>
           <div className="divide-y divide-ink/10">
             {timeline.map((item) => (
-              <div key={item.key} className="flex items-start justify-between gap-4 px-6 py-5 md:px-8">
+              <div key={item.key} className="px-6 py-5 md:px-8">
 
-                {/* Левая часть: тип + дата + название */}
-                <div className="min-w-0 flex-1">
+                {/* Мобильная версия */}
+                <div className="flex items-start justify-between gap-4 md:hidden">
+                  <div className="min-w-0 flex-1">
+                    <span className={`text-[9px] uppercase tracking-[0.14em] font-medium ${item.kind === "event" ? "text-accent" : "text-ink/30"}`}>
+                      {item.kind === "event" ? (isRu ? "Анонс" : "Event") : (isRu ? "Занятие" : "Class")}
+                    </span>
+                    <p className="mt-0.5 text-[11px] text-ink/40">
+                      {fmtDate(item.date, isRu)}, {fmtWeekday(item.date, isRu)}, {fmtTime(item.date)}
+                    </p>
+                    <p className="mt-1 font-display text-[18px] leading-snug text-ink">{item.title}</p>
+                  </div>
+                  <div className="shrink-0 flex gap-3 pt-0.5">
+                    {item.price && (
+                      <div className="text-right">
+                        <p className="text-[9px] uppercase tracking-[0.1em] text-ink/30">{isRu ? "Цена" : "Price"}</p>
+                        <p className="text-sm text-ink/70">{item.price}</p>
+                      </div>
+                    )}
+                    {item.ageGroup && (
+                      <div className="text-right">
+                        <p className="text-[9px] uppercase tracking-[0.1em] text-ink/30">{isRu ? "Возраст" : "Age"}</p>
+                        <p className="text-sm text-ink/70">{item.ageGroup}</p>
+                      </div>
+                    )}
+                    {item.available !== null && (
+                      <div className="text-right">
+                        <p className="text-[9px] uppercase tracking-[0.1em] text-ink/30">{isRu ? "Мест" : "Spots"}</p>
+                        <p className={`text-sm ${item.isFull ? "text-red-400" : "text-ink/70"}`}>
+                          {item.isFull ? (isRu ? "Нет" : "Full") : item.available}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Десктопная версия — 4 колонки как было */}
+                <div className="hidden md:grid md:grid-cols-[80px_180px_1fr_auto] md:items-center md:gap-x-8">
                   <span className={`text-[9px] uppercase tracking-[0.14em] font-medium ${item.kind === "event" ? "text-accent" : "text-ink/30"}`}>
                     {item.kind === "event" ? (isRu ? "Анонс" : "Event") : (isRu ? "Занятие" : "Class")}
                   </span>
-                  <p className="mt-0.5 text-[11px] text-ink/40">
-                    {fmtDate(item.date, isRu)}, {fmtWeekday(item.date, isRu)}, {fmtTime(item.date)}
-                  </p>
-                  <p className="mt-1 font-display text-[18px] leading-snug text-ink">{item.title}</p>
-                </div>
-
-                {/* Правая часть: цена, возраст, места */}
-                <div className="shrink-0 flex gap-3 pt-0.5">
-                  {item.price && (
-                    <div className="text-right">
-                      <p className="text-[9px] uppercase tracking-[0.1em] text-ink/30">{isRu ? "Цена" : "Price"}</p>
-                      <p className="text-sm text-ink/70">{item.price}</p>
-                    </div>
-                  )}
-                  {item.ageGroup && (
-                    <div className="text-right">
-                      <p className="text-[9px] uppercase tracking-[0.1em] text-ink/30">{isRu ? "Возраст" : "Age"}</p>
-                      <p className="text-sm text-ink/70">{item.ageGroup}</p>
-                    </div>
-                  )}
-                  {item.available !== null && (
-                    <div className="text-right">
-                      <p className="text-[9px] uppercase tracking-[0.1em] text-ink/30">{isRu ? "Мест" : "Spots"}</p>
-                      <p className={`text-sm ${item.isFull ? "text-red-400" : "text-ink/70"}`}>
-                        {item.isFull ? (isRu ? "Нет" : "Full") : item.available}
-                      </p>
-                    </div>
-                  )}
+                  <div>
+                    <p className="text-[13px] font-medium text-ink/80">{fmtDate(item.date, isRu)}</p>
+                    <p className="text-[11px] text-ink/40">{fmtWeekday(item.date, isRu)}, {fmtTime(item.date)}</p>
+                  </div>
+                  <p className="font-display text-[19px] leading-snug text-ink">{item.title}</p>
+                  <div className="flex items-center gap-5 justify-end">
+                    {item.price && (
+                      <div className="text-right">
+                        <p className="text-[9px] uppercase tracking-[0.1em] text-ink/30">{isRu ? "Цена" : "Price"}</p>
+                        <p className="text-sm text-ink/60">{item.price}</p>
+                      </div>
+                    )}
+                    {item.ageGroup && (
+                      <div className="text-right">
+                        <p className="text-[9px] uppercase tracking-[0.1em] text-ink/30">{isRu ? "Возраст" : "Age"}</p>
+                        <p className="text-sm text-ink/60">{item.ageGroup}</p>
+                      </div>
+                    )}
+                    {item.available !== null && (
+                      <div className="text-right">
+                        <p className="text-[9px] uppercase tracking-[0.1em] text-ink/30">{isRu ? "Мест" : "Spots"}</p>
+                        <p className={`text-sm ${item.isFull ? "text-red-400" : "text-ink/60"}`}>
+                          {item.isFull ? (isRu ? "Нет" : "Full") : item.available}
+                        </p>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
               </div>
