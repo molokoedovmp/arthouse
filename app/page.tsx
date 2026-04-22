@@ -17,10 +17,9 @@ export const metadata = {
 const daysOrder = ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"];
 const DAYS_RU = ["Воскресенье", "Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота"];
 
-function fmtTime(dt: Date, durationMin: number) {
+function fmtTime(dt: Date) {
   const pad = (n: number) => String(n).padStart(2, "0");
-  const end = new Date(dt.getTime() + durationMin * 60000);
-  return `${pad(dt.getHours())}:${pad(dt.getMinutes())} – ${pad(end.getHours())}:${pad(end.getMinutes())}`;
+  return `${pad(dt.getHours())}:${pad(dt.getMinutes())}`;
 }
 
 export default async function HomePage() {
@@ -32,11 +31,10 @@ export default async function HomePage() {
     start_datetime: Date;
     service_title: string;
     age_group: string;
-    duration_minutes: number;
+    duration_minutes: string;
   }>(
-    `SELECT s.start_datetime, sv.title AS service_title, sv.age_group, sv.duration_minutes
+    `SELECT s.start_datetime, s.title AS service_title, s.age_group, s.duration_minutes
      FROM schedule s
-     JOIN services sv ON s.service_id = sv.id
      WHERE s.start_datetime >= NOW() AND s.status = 'active'
      ORDER BY s.start_datetime
      LIMIT 50`
@@ -53,7 +51,7 @@ export default async function HomePage() {
     if (!scheduleByDay[dayName]) scheduleByDay[dayName] = [];
     scheduleByDay[dayName].push({
       title: row.service_title,
-      time: fmtTime(dt, row.duration_minutes ?? 90),
+      time: fmtTime(dt),
       age: row.age_group ?? "",
     });
   }
