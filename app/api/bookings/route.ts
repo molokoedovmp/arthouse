@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import pool from '@/lib/db'
 import nodemailer from 'nodemailer'
+import SMTPTransport from 'nodemailer/lib/smtp-transport'
 
 function createTransporter() {
   return nodemailer.createTransport({
@@ -12,7 +13,7 @@ function createTransporter() {
       user: process.env.NEXT_PUBLIC_NODEMAILER_USER,
       pass: process.env.NEXT_PUBLIC_NODEMAILER_PASSWORD,
     },
-  })
+  } as SMTPTransport.Options)
 }
 
 export async function POST(req: NextRequest) {
