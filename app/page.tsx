@@ -8,7 +8,7 @@ import { ServicesCarousel, type ServiceCard } from "@/components/ServicesCarouse
 import { getLang } from "../lib/get-lang";
 import { getT } from "../lib/i18n";
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 60; // кеш 60 секунд, не пересобирает на каждый запрос
 
 export const metadata = {
   title: "Главная",
@@ -37,45 +37,40 @@ export default async function HomePage() {
   const h = t.home;
   const isRu = lang === "ru";
 
-  // Upcoming schedule
-  const scheduleRes = await pool.query<{
-    id: number;
-    start_datetime: Date;
-    title: string;
-    age_group: string | null;
-    price: string | null;
-    max_participants: number | null;
-    booked: string;
-  }>(
-    `SELECT s.id, s.start_datetime, s.title, s.age_group, s.price,
-            s.max_participants, COUNT(b.id) FILTER (WHERE b.status != 'cancelled') AS booked
-     FROM schedule s
-     LEFT JOIN bookings b ON b.schedule_id = s.id
-     WHERE s.start_datetime >= NOW() AND s.status = 'active'
-     GROUP BY s.id
-     ORDER BY s.start_datetime
-     LIMIT 8`
-  );
-
-  // Upcoming events
-  const eventsRes = await pool.query<{
-    id: number;
-    event_date: Date;
-    title: string;
-    age_group: string | null;
-    price: string | null;
-    max_participants: number | null;
-    booked: string;
-  }>(
-    `SELECT e.id, e.event_date, e.title, e.age_group, e.price,
-            e.max_participants, COUNT(eb.id) FILTER (WHERE eb.status != 'cancelled') AS booked
-     FROM events e
-     LEFT JOIN event_bookings eb ON eb.event_id = e.id
-     WHERE e.event_date >= NOW()
-     GROUP BY e.id
-     ORDER BY e.event_date
-     LIMIT 8`
-  );
+  // Все запросы к БД параллельно
+  const [scheduleRes, eventsRes, servicesRes, paintingsRes, heroFiles] = await Promise.all([
+    pool.query<{
+      id: number; start_datetime: Date; title: string;
+      age_group: string | null; price: string | null;
+      max_participants: number | null; booked: string;
+    }>(
+      `SELECT s.id, s.start_datetime, s.title, s.age_group, s.price,
+              s.max_participants, COUNT(b.id) FILTER (WHERE b.status != 'cancelled') AS booked
+       FROM schedule s LEFT JOIN bookings b ON b.schedule_id = s.id
+       WHERE s.start_datetime >= NOW() AND s.status = 'active'
+       GROUP BY s.id ORDER BY s.start_datetime LIMIT 8`
+    ),
+    pool.query<{
+      id: number; event_date: Date; title: string;
+      age_group: string | null; price: string | null;
+      max_participants: number | null; booked: string;
+    }>(
+      `SELECT e.id, e.event_date, e.title, e.age_group, e.price,
+              e.max_participants, COUNT(eb.id) FILTER (WHERE eb.status != 'cancelled') AS booked
+       FROM events e LEFT JOIN event_bookings eb ON eb.event_id = e.id
+       WHERE e.event_date >= NOW()
+       GROUP BY e.id ORDER BY e.event_date LIMIT 8`
+    ),
+    pool.query<ServiceCard>(
+      `SELECT id, title, description, type, image, age_group, price FROM services ORDER BY id LIMIT 8`
+    ),
+    pool.query<{
+      id: number; title: string; year: number; technique: string; size: string; image: string;
+    }>(
+      `SELECT id, title, year, technique, size, image FROM paintings ORDER BY id DESC LIMIT 5`
+    ),
+    readdir(`${process.cwd()}/public/hero`),
+  ]);
 
   // Merge schedule + events, sort by date
   type TimelineItem = {
@@ -120,21 +115,8 @@ export default async function HomePage() {
     }),
   ].sort((a, b) => a.date.getTime() - b.date.getTime());
 
-  // Services catalog
-  const servicesRes = await pool.query<ServiceCard>(
-    `SELECT id, title, description, type, image, age_group, price FROM services ORDER BY id LIMIT 8`
-  );
   const services = servicesRes.rows;
-
-  const paintingsRes = await pool.query<{
-    id: number; title: string; year: number; technique: string; size: string; image: string;
-  }>(
-    `SELECT id, title, year, technique, size, image FROM paintings ORDER BY id DESC LIMIT 5`
-  );
   const paintings = paintingsRes.rows;
-
-  const heroDir = `${process.cwd()}/public/hero`;
-  const heroFiles = await readdir(heroDir);
   const imageNames = heroFiles
     .filter((f) => /\.(jpg|jpeg|png|webp|avif)$/i.test(f))
     .sort((a, b) => {
