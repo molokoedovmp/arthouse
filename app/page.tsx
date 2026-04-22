@@ -190,29 +190,50 @@ export default async function HomePage() {
           </div>
           <div className="divide-y divide-ink/10">
             {timeline.map((item) => (
-              <div key={item.key} className="flex items-center gap-4 px-6 py-3 md:px-8">
-                {/* Kind badge */}
-                <span className={`hidden sm:block text-[9px] uppercase tracking-[0.12em] w-14 shrink-0 ${item.kind === "event" ? "text-accent" : "text-ink/30"}`}>
-                  {item.kind === "event" ? (isRu ? "Анонс" : "Event") : (isRu ? "Занятие" : "Class")}
-                </span>
-                {/* Date */}
-                <p className="w-32 shrink-0 text-xs text-ink/40">
-                  {fmtDate(item.date, isRu)}, {fmtWeekday(item.date, isRu)}
-                </p>
-                {/* Time */}
-                <p className="w-12 shrink-0 text-xs text-ink/40">{fmtTime(item.date)}</p>
-                {/* Title */}
-                <p className="flex-1 truncate text-sm text-ink/80">{item.title}</p>
-                {/* Meta */}
-                <div className="hidden md:flex items-center gap-4 shrink-0">
-                  {item.price && <p className="text-xs text-ink/35">{item.price}</p>}
-                  {item.ageGroup && <p className="text-xs text-ink/35">{item.ageGroup}</p>}
-                  {item.isFull ? (
-                    <p className="text-xs text-red-400">{isRu ? "Мест нет" : "Full"}</p>
-                  ) : item.available !== null ? (
-                    <p className="text-xs text-ink/30">{isRu ? `${item.available} св.` : `${item.available} left`}</p>
-                  ) : null}
+              <div key={item.key} className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-1 px-6 py-5 md:grid-cols-[80px_180px_1fr_auto] md:items-center md:gap-x-8 md:px-8">
+
+                {/* Тип — занятие или анонс */}
+                <div className="col-span-2 md:col-span-1">
+                  <span className={`text-[9px] uppercase tracking-[0.14em] font-medium ${item.kind === "event" ? "text-accent" : "text-ink/30"}`}>
+                    {item.kind === "event" ? (isRu ? "Анонс" : "Event") : (isRu ? "Занятие" : "Class")}
+                  </span>
                 </div>
+
+                {/* Дата и время */}
+                <div className="md:col-span-1">
+                  <p className="text-[13px] font-medium text-ink/80">{fmtDate(item.date, isRu)}</p>
+                  <p className="text-[11px] text-ink/40">{fmtWeekday(item.date, isRu)}, {fmtTime(item.date)}</p>
+                </div>
+
+                {/* Название */}
+                <div className="col-span-2 md:col-span-1">
+                  <p className="font-display text-[19px] leading-snug text-ink">{item.title}</p>
+                </div>
+
+                {/* Мета: цена, возраст, места */}
+                <div className="col-span-2 flex flex-wrap items-center gap-x-5 gap-y-1 md:col-span-1 md:justify-end">
+                  {item.price && (
+                    <div className="text-right">
+                      <p className="text-[9px] uppercase tracking-[0.1em] text-ink/30">{isRu ? "Цена" : "Price"}</p>
+                      <p className="text-sm text-ink/60">{item.price}</p>
+                    </div>
+                  )}
+                  {item.ageGroup && (
+                    <div className="text-right">
+                      <p className="text-[9px] uppercase tracking-[0.1em] text-ink/30">{isRu ? "Возраст" : "Age"}</p>
+                      <p className="text-sm text-ink/60">{item.ageGroup}</p>
+                    </div>
+                  )}
+                  {item.available !== null && (
+                    <div className="text-right">
+                      <p className="text-[9px] uppercase tracking-[0.1em] text-ink/30">{isRu ? "Мест" : "Spots"}</p>
+                      <p className={`text-sm ${item.isFull ? "text-red-400" : "text-ink/60"}`}>
+                        {item.isFull ? (isRu ? "Нет" : "Full") : item.available}
+                      </p>
+                    </div>
+                  )}
+                </div>
+
               </div>
             ))}
           </div>
