@@ -23,6 +23,8 @@ export function ScheduleImage({ src, alt }: Props) {
           alt={alt}
           width={420}
           height={280}
+          sizes="(max-width: 1024px) 100vw, 230px"
+          loading="lazy"
           className="h-full min-h-[180px] w-full object-cover transition-transform duration-500 hover:scale-105"
         />
       </div>

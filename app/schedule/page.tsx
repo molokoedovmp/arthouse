@@ -6,7 +6,7 @@ import pool from "../../lib/db";
 import { getLang } from "../../lib/get-lang";
 import { getT } from "../../lib/i18n";
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 30;
 
 export const metadata = {
   title: "Расписание",
@@ -94,27 +94,26 @@ export default async function SchedulePage() {
     ? "В расписании пока нет активных занятий и мероприятий."
     : "There are no active classes or events in the schedule yet.";
 
-  const servicesRes = await pool.query<ScheduleRow>(
-    `SELECT s.id, s.start_datetime, s.max_participants, s.status,
-            s.title, s.description, s.image, s.age_group, s.duration_minutes, s.price, s.type,
-            COUNT(b.id) FILTER (WHERE b.status != 'cancelled') AS booked
-     FROM schedule s
-     LEFT JOIN bookings b ON b.schedule_id = s.id
-     WHERE s.start_datetime >= NOW() AND s.status = 'active'
-     GROUP BY s.id
-     ORDER BY s.start_datetime`
-  );
-
-  const eventsRes = await pool.query<EventRow>(
-    `SELECT e.id AS event_id, e.title, e.description, e.event_date, e.image, e.max_participants,
-            e.type, e.age_group, e.duration_minutes, e.price,
-            COUNT(eb.id) FILTER (WHERE eb.status != 'cancelled') AS booked
-     FROM events e
-     LEFT JOIN event_bookings eb ON eb.event_id = e.id
-     WHERE e.event_date >= NOW()
-     GROUP BY e.id
-     ORDER BY e.event_date`
-  );
+  const [servicesRes, eventsRes] = await Promise.all([
+    pool.query<ScheduleRow>(
+      `SELECT s.id, s.start_datetime, s.max_participants, s.status,
+              s.title, s.description, s.image, s.age_group, s.duration_minutes, s.price, s.type,
+              COUNT(b.id) FILTER (WHERE b.status != 'cancelled') AS booked
+       FROM schedule s
+       LEFT JOIN bookings b ON b.schedule_id = s.id
+       WHERE s.start_datetime >= NOW() AND s.status = 'active'
+       GROUP BY s.id ORDER BY s.start_datetime`
+    ),
+    pool.query<EventRow>(
+      `SELECT e.id AS event_id, e.title, e.description, e.event_date, e.image, e.max_participants,
+              e.type, e.age_group, e.duration_minutes, e.price,
+              COUNT(eb.id) FILTER (WHERE eb.status != 'cancelled') AS booked
+       FROM events e
+       LEFT JOIN event_bookings eb ON eb.event_id = e.id
+       WHERE e.event_date >= NOW()
+       GROUP BY e.id ORDER BY e.event_date`
+    ),
+  ]);
 
   const serviceItems = servicesRes.rows.map((row) => {
     const booked = Number(row.booked);
