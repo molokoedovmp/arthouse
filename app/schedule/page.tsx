@@ -226,13 +226,13 @@ export default async function SchedulePage() {
                       {item.ageGroup && <Field label={isRu ? "Возраст" : "Age"} value={item.ageGroup} />}
                       {item.durationMinutes && <Field label={isRu ? "Длительность" : "Duration"} value={item.durationMinutes} />}
                       {item.price && <Field label={isRu ? "Стоимость" : "Price"} value={item.price} />}
-                      {item.maxParticipants !== null && (
+                      {/* item.maxParticipants !== null && (
                         <>
                           <Field label={isRu ? "Мест всего" : "Total spots"} value={String(item.maxParticipants)} />
                           <Field label={isRu ? "Забронировано" : "Booked"} value={String(item.booked)} />
                           <Field label={isRu ? "Свободно" : "Available"} value={fmtNumberOrUnlimited(item.availableSpots, lang)} />
                         </>
-                      )}
+                      ) */}
                     </div>
 
                     <div className="mt-5">
