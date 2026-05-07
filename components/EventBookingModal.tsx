@@ -135,11 +135,11 @@ export function EventBookingModal({ eventId, title, availableSpots }: Props) {
                 <>
                   <p className="caps text-accent">{eb.title}</p>
                   <h3 className="mt-2 font-display text-[22px] leading-tight">{title}</h3>
-                  {availableSpots !== null && (
+                  {/* availableSpots !== null && (
                     <p className="mt-1 text-xs text-ink/40">
                       {t.common.freeSpots}: <span className="text-ink/70">{availableSpots}</span>
                     </p>
-                  )}
+                  ) */}
 
                   <form onSubmit={submit} className="mt-6 space-y-4">
                     <div>

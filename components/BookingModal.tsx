@@ -138,11 +138,11 @@ export function BookingModal({ scheduleId, title, time, availableSpots }: Props)
                   <p className="caps text-accent">{t.title}</p>
                   <h3 className="mt-2 font-display text-[22px] leading-tight">{title}</h3>
                   <p className="mt-1 text-sm text-ink/50">{time}</p>
-                  {availableSpots !== null && (
+                  {/* availableSpots !== null && (
                     <p className="mt-1 text-xs text-ink/40">
                       {getT(lang).common.freeSpots}: <span className="text-ink/70">{availableSpots}</span>
                     </p>
-                  )}
+                  ) */}
 
                   <form onSubmit={submit} className="mt-6 space-y-4">
                     <div>
