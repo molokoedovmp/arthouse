@@ -164,7 +164,7 @@ export default async function EventsPage() {
                               <p className="mt-0.5 text-sm text-ink/70">{event.price}</p>
                             </div>
                           )}
-                          {availableSpots !== null && (
+                          {/* availableSpots !== null && (
                             <div className="border border-ink/10 px-3 py-2">
                               <p className="text-[9px] uppercase tracking-[0.15em] text-ink/35">
                                 {isRu ? "Свободно мест" : "Available"}
@@ -173,7 +173,7 @@ export default async function EventsPage() {
                                 {isFull ? (isRu ? "Мест нет" : "Full") : availableSpots}
                               </p>
                             </div>
-                          )}
+                          ) */}
                         </div>
                       )}
 
