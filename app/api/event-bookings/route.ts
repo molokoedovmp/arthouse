@@ -63,7 +63,7 @@ export async function POST(req: NextRequest) {
       html: `
         <h2>Новая запись на мероприятие</h2>
         <p><strong>Мероприятие:</strong> ${title}</p>
-        ${event_date ? `<p><strong>Дата:</strong> ${new Date(event_date).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>` : ''}
+        ${event_date ? `<p><strong>Дата:</strong> ${new Date(event_date).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Moscow' })}</p>` : ''}
         <p><strong>Имя:</strong> ${name}</p>
         <p><strong>Телефон:</strong> ${phone}</p>
         <p><strong>Email:</strong> ${email || '—'}</p>
