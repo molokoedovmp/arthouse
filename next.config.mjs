@@ -9,7 +9,7 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "s3.skriptkin.ru",
+        hostname: "s3.art-territory.ru",
       },
     ],
   },
