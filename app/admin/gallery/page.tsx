@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import Image from 'next/image'
 import { ImageUpload } from '../../../components/admin/ImageUpload'
 
 interface GalleryRow {
@@ -92,8 +93,7 @@ export default function GalleryPage() {
                 <tr key={row.id} className="hover:bg-gray-50">
                   <td className="px-4 py-3">
                     {row.image
-                      // eslint-disable-next-line @next/next/no-img-element
-                      ? <img src={row.image} alt="" className="h-12 w-12 object-cover border border-gray-200" />
+                      ? <Image src={row.image} alt="" width={48} height={48} className="h-12 w-12 object-cover border border-gray-200" />
                       : <div className="h-12 w-12 bg-gray-100 border border-gray-200" />}
                   </td>
                   <td className="px-4 py-3 text-gray-700">{row.category || '—'}</td>

@@ -42,10 +42,10 @@ export default async function HomePage() {
     pool.query<{
       id: number; start_datetime: Date; title: string;
       age_group: string | null; price: string | null;
-      max_participants: number | null; booked: string;
+      max_participants: number | null; booked: string; image: string | null;
     }>(
       `SELECT s.id, s.start_datetime, s.title, s.age_group, s.price,
-              s.max_participants, COUNT(b.id) FILTER (WHERE b.status != 'cancelled') AS booked
+              s.max_participants, s.image, COUNT(b.id) FILTER (WHERE b.status != 'cancelled') AS booked
        FROM schedule s LEFT JOIN bookings b ON b.schedule_id = s.id
        WHERE s.start_datetime >= NOW() AND s.status = 'active'
        GROUP BY s.id ORDER BY s.start_datetime LIMIT 8`
@@ -53,10 +53,10 @@ export default async function HomePage() {
     pool.query<{
       id: number; event_date: Date; title: string;
       age_group: string | null; price: string | null;
-      max_participants: number | null; booked: string;
+      max_participants: number | null; booked: string; image: string | null;
     }>(
       `SELECT e.id, e.event_date, e.title, e.age_group, e.price,
-              e.max_participants, COUNT(eb.id) FILTER (WHERE eb.status != 'cancelled') AS booked
+              e.max_participants, e.image, COUNT(eb.id) FILTER (WHERE eb.status != 'cancelled') AS booked
        FROM events e LEFT JOIN event_bookings eb ON eb.event_id = e.id
        WHERE e.event_date >= NOW()
        GROUP BY e.id ORDER BY e.event_date LIMIT 8`
@@ -82,6 +82,7 @@ export default async function HomePage() {
     price: string | null;
     available: number | null;
     isFull: boolean;
+    image: string | null;
   };
 
   const timeline: TimelineItem[] = [
@@ -97,6 +98,7 @@ export default async function HomePage() {
         price: r.price,
         available,
         isFull: available !== null && available <= 0,
+        image: r.image ?? null,
       };
     }),
     ...eventsRes.rows.map((r) => {
@@ -111,6 +113,7 @@ export default async function HomePage() {
         price: r.price,
         available,
         isFull: available !== null && available <= 0,
+        image: r.image ?? null,
       };
     }),
   ].sort((a, b) => a.date.getTime() - b.date.getTime());
@@ -268,7 +271,7 @@ export default async function HomePage() {
       <section className="border-t border-ink/10">
         <div className="grid lg:grid-cols-2 lg:items-stretch">
           <div className="relative aspect-square overflow-hidden bg-stone">
-            <Image src="/images/gaallery.jpg" alt="Галерея работ" fill className="object-cover" />
+            <Image src="/images/ser.jpg" alt="Галерея работ" fill className="object-cover" />
           </div>
           <div className="flex flex-col justify-center px-8 py-16 md:px-16 lg:px-20 lg:py-24">
             <p className="caps text-ink/40">{h.galleryLabel}</p>

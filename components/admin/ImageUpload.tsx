@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 
 interface ImageUploadProps {
   value: string
@@ -35,8 +36,7 @@ export function ImageUpload({ value, onChange, table }: ImageUploadProps) {
     <div>
       {value && (
         <div className="mb-2">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={value} alt="" className="h-24 w-auto object-cover border border-gray-200" />
+          <Image src={value} alt="" width={200} height={96} className="h-24 w-auto object-cover border border-gray-200" />
         </div>
       )}
       <label className="inline-flex cursor-pointer items-center gap-2 border border-gray-300 px-3 py-1.5 text-xs hover:border-gray-500 transition-colors">

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import Image from 'next/image'
 import { ImageUpload } from '../../../components/admin/ImageUpload'
 
 interface EventRow {
@@ -140,8 +141,7 @@ export default function EventsPage() {
                 <tr key={row.id} className="hover:bg-gray-50">
                   <td className="px-4 py-3">
                     {row.image
-                      // eslint-disable-next-line @next/next/no-img-element
-                      ? <img src={row.image} alt="" className="h-10 w-10 object-cover border border-gray-200" />
+                      ? <Image src={row.image} alt="" width={40} height={40} className="h-10 w-10 object-cover border border-gray-200" />
                       : <div className="h-10 w-10 bg-gray-100 border border-gray-200" />}
                   </td>
                   <td className="px-4 py-3 font-medium text-gray-900">{row.title}</td>
