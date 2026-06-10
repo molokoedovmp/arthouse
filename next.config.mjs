@@ -5,7 +5,6 @@ const nextConfig = {
     serverComponentsExternalPackages: ['pg'],
   },
   images: {
-    unoptimized: true,
     remotePatterns: [
       {
         protocol: "https",
