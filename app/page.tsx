@@ -156,7 +156,7 @@ export default async function HomePage() {
       <section className="border-b border-ink/10">
         <div className="px-4 py-6 text-center">
           <p className="font-display whitespace-nowrap text-[clamp(18px,4.5vw,34px)] leading-none text-ink">
-            {isRu ? "Весенняя акция -20% на все занятия." : "Spring offer -20% on all classes."}
+            {isRu ? "Арт вечеринки «Лето. Живопись. Prosecco»" : "Art parties «Summer. Painting. Prosecco»"}
           </p>
         </div>
       </section>
