@@ -120,10 +120,7 @@ export function EventBookingModal({ eventId, title, availableSpots }: Props) {
                     </svg>
                   </div>
                   <h3 className="font-display text-2xl">{eb.successTitle}</h3>
-                  <p className="mt-2 text-sm text-ink/60">
-                    {eb.successText} <span className="text-ink">{title}</span>.<br />
-                    {eb.successSub}
-                  </p>
+                  <p className="mt-2 text-sm text-ink/60">{title}</p>
                   <button
                     onClick={close}
                     className="mt-6 w-full bg-ink py-3 text-xs uppercase tracking-[0.2em] text-white transition hover:bg-ink/80"

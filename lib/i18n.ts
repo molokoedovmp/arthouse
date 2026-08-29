@@ -144,9 +144,7 @@ const ru = {
     submit: 'Записаться',
     sending: 'Отправка...',
     noSpots: 'Мест нет',
-    successTitle: 'Вы записаны!',
-    successText: 'Ждём вас на занятии',
-    successSub: 'Мы свяжемся с вами для подтверждения.',
+    successTitle: 'Вы записаны на занятие!',
     errorConnection: 'Нет соединения с сервером',
     errorDefault: 'Ошибка при записи',
     close: 'Закрыть',
@@ -154,9 +152,7 @@ const ru = {
   },
   eventBooking: {
     title: 'Запись на мероприятие',
-    successTitle: 'Вы записаны!',
-    successText: 'Ждём вас на мероприятии',
-    successSub: 'Мы свяжемся с вами для подтверждения.',
+    successTitle: 'Вы записаны на мероприятие!',
     noSpots: 'Мест нет',
   },
   home: {
@@ -332,9 +328,7 @@ const en: Dict = {
     submit: 'Submit',
     sending: 'Sending...',
     noSpots: 'No spots available',
-    successTitle: 'You\'re signed up!',
-    successText: 'See you at',
-    successSub: 'We will contact you to confirm.',
+    successTitle: 'You\'re signed up for the class!',
     errorConnection: 'No server connection',
     errorDefault: 'Registration error',
     close: 'Close',
@@ -342,9 +336,7 @@ const en: Dict = {
   },
   eventBooking: {
     title: 'Sign up for the event',
-    successTitle: "You're signed up!",
-    successText: 'See you at',
-    successSub: 'We will contact you to confirm.',
+    successTitle: "You're signed up for the event!",
     noSpots: 'No spots available',
   },
   home: {
