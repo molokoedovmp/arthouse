@@ -3,11 +3,15 @@ import { Container } from "../../components/Container";
 import { ZoomableImage } from "../../components/ZoomableImage";
 import { getLang } from "../../lib/get-lang";
 import { getT } from "../../lib/i18n";
+import { createPageMetadata } from "../../lib/seo";
 
-export const metadata = {
-  title: "Творческий коворкинг",
-  description: "Арендуйте рабочее место в творческой мастерской Арт Хаус — для любителей и профессиональных художников.",
-};
+export const metadata = createPageMetadata({
+  title: "Творческий коворкинг для художников",
+  description: "Рабочее место в оборудованной художественной мастерской АртХаус в Истре для любителей и профессиональных художников.",
+  path: "/coworking",
+  image: "/event/1.JPG",
+  keywords: ["творческий коворкинг Истра", "аренда мастерской художника"],
+});
 
 const photos: string[] = [
   "/event/1.JPG",

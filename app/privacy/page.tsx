@@ -1,9 +1,11 @@
 import { Container } from "@/components/Container";
+import { createPageMetadata } from "@/lib/seo";
 
-export const metadata = {
+export const metadata = createPageMetadata({
   title: "Политика конфиденциальности",
-  description: "Политика конфиденциальности сайта Арт Хаус.",
-};
+  description: "Политика обработки и защиты персональных данных пользователей сайта АртХаус.",
+  path: "/privacy",
+});
 
 export default function PrivacyPage() {
   return (

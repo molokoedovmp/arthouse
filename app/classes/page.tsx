@@ -4,13 +4,17 @@ import { Container } from "../../components/Container";
 import pool from "../../lib/db";
 import { getLang } from "../../lib/get-lang";
 import { getT } from "../../lib/i18n";
+import { createPageMetadata } from "../../lib/seo";
 
 export const dynamic = 'force-dynamic';
 
-export const metadata = {
-  title: "Занятия",
-  description: "Направления для детей, взрослых и коворкинг в художественной мастерской.",
-};
+export const metadata = createPageMetadata({
+  title: "Занятия живописью для детей и взрослых",
+  description: "Занятия рисованием и живописью, семейные мастер-классы и творческие форматы АртХаус в Истре. Программы для детей и взрослых.",
+  path: "/classes",
+  image: "/images/25.jpg",
+  keywords: ["занятия рисованием Истра", "рисование для детей", "живопись для взрослых"],
+});
 
 export default async function ClassesPage() {
   const lang = await getLang();

@@ -4,13 +4,17 @@ import { PaintingCard } from "../../components/PaintingCard";
 import pool from "../../lib/db";
 import { getLang } from "../../lib/get-lang";
 import { getT } from "../../lib/i18n";
+import { createPageMetadata } from "../../lib/seo";
 
 export const dynamic = 'force-dynamic';
 
-export const metadata = {
-  title: "Картины",
-  description: "Каталог авторских работ Ольги Смирновой.",
-};
+export const metadata = createPageMetadata({
+  title: "Картины Ольги Смирновой",
+  description: "Каталог авторских картин художницы Ольги Смирновой: пейзажи и живописные работы с описанием, размером, техникой и стоимостью.",
+  path: "/paintings",
+  image: "/images/IMG_8891.jpg",
+  keywords: ["картины Ольги Смирновой", "купить картину", "современная живопись"],
+});
 
 export default async function PaintingsPage() {
   const lang = await getLang();

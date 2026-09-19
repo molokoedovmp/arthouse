@@ -3,11 +3,15 @@ import { ArtistsList } from "../../components/ArtistsList";
 import { artists } from "../../data/content";
 import { getLang } from "../../lib/get-lang";
 import { getT } from "../../lib/i18n";
+import { createPageMetadata } from "../../lib/seo";
 
-export const metadata = {
-  title: "Художники",
-  description: "Художники и педагоги Арт Хаус — творческой мастерской Ольги Смирновой.",
-};
+export const metadata = createPageMetadata({
+  title: "Художник и педагог Ольга Смирнова",
+  description: "Биография художницы, иконописца и педагога Ольги Смирновой — основателя творческой мастерской АртХаус.",
+  path: "/artist",
+  image: "/images/img_adout.jpg",
+  keywords: ["художник Ольга Смирнова", "педагог по живописи"],
+});
 
 const subtitleText = {
   ru: "Люди, которые создают атмосферу мастерской, ведут занятия и делятся своим взглядом на искусство.",

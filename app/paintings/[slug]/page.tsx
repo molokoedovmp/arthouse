@@ -5,6 +5,8 @@ import { Container } from "../../../components/Container";
 import { SectionTitle } from "../../../components/SectionTitle";
 import { ZoomableImage } from "../../../components/ZoomableImage";
 import pool from "../../../lib/db";
+import type { Metadata } from "next";
+import { createPageMetadata } from "../../../lib/seo";
 
 export const dynamic = 'force-dynamic';
 
@@ -12,17 +14,27 @@ interface Props {
   params: { slug: string };
 }
 
-export async function generateMetadata({ params }: Props) {
-  const res = await pool.query<{ title: string; technique: string; size: string }>(
-    `SELECT title, technique, size FROM paintings WHERE id = $1`,
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const res = await pool.query<{ title: string; technique: string; size: string; image: string }>(
+    `SELECT title, technique, size, image FROM paintings WHERE id = $1`,
     [params.slug]
   );
   const p = res.rows[0];
-  if (!p) return { title: "Картина" };
-  return {
+  if (!p) {
+    return createPageMetadata({
+      title: "Картина не найдена",
+      description: "Запрошенная картина не найдена в каталоге АртХаус.",
+      path: `/paintings/${params.slug}`,
+      noIndex: true,
+    });
+  }
+  return createPageMetadata({
     title: p.title,
-    description: `${p.title} — ${p.technique}, ${p.size}.`,
-  };
+    description: `${p.title} — авторская картина Ольги Смирновой. ${p.technique}, ${p.size}. Описание и информация о покупке.`,
+    path: `/paintings/${params.slug}`,
+    image: p.image || "/images/painting-placeholder.svg",
+    keywords: [p.title, p.technique, "авторская картина"],
+  });
 }
 
 export default async function PaintingPage({ params }: Props) {

@@ -3,11 +3,14 @@ import { ContactForm } from "../../components/ContactForm";
 import { getLang } from "../../lib/get-lang";
 import { getT } from "../../lib/i18n";
 import { contactInfo } from "../../lib/contact-info";
+import { createPageMetadata } from "../../lib/seo";
 
-export const metadata = {
-  title: "Контакты",
-  description: "Свяжитесь с художественной мастерской Арт Хаус.",
-};
+export const metadata = createPageMetadata({
+  title: "Контакты и адрес мастерской",
+  description: "Адрес, телефон, электронная почта и карта художественной мастерской АртХаус в деревне Крючково городского округа Истра.",
+  path: "/contact",
+  keywords: ["арт-студия Крючково", "художественная мастерская адрес"],
+});
 
 export default async function ContactPage() {
   const lang = await getLang();

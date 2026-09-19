@@ -5,13 +5,17 @@ import { ScheduleImage } from "../../components/ScheduleImage";
 import pool from "../../lib/db";
 import { getLang } from "../../lib/get-lang";
 import { getT } from "../../lib/i18n";
+import { createPageMetadata } from "../../lib/seo";
+import { MobileCardImage } from "../../components/MobileCardImage";
 
 export const revalidate = 30;
 
-export const metadata = {
-  title: "Расписание",
-  description: "Единое расписание занятий и анонсов мероприятий художественной мастерской Арт Хаус.",
-};
+export const metadata = createPageMetadata({
+  title: "Расписание занятий и мероприятий",
+  description: "Актуальное расписание занятий, мастер-классов и творческих мероприятий АртХаус в Истре. Выберите дату и запишитесь онлайн.",
+  path: "/schedule",
+  keywords: ["расписание арт-студии", "мастер-классы Истра", "запись на рисование"],
+});
 
 type ScheduleRow = {
   id: number;
@@ -62,6 +66,15 @@ function fmtDate(dt: Date, lang: "ru" | "en") {
   }).format(dt);
 }
 
+function fmtMobileDate(dt: Date, lang: "ru" | "en") {
+  return new Intl.DateTimeFormat(lang === "ru" ? "ru-RU" : "en-US", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    timeZone: TZ,
+  }).format(dt);
+}
+
 function fmtTimeOnly(dt: Date) {
   return fmtTime(dt);
 }
@@ -73,9 +86,9 @@ function fmtNumberOrUnlimited(value: number | null, lang: "ru" | "en") {
 
 function Field({ label, value }: { label: string; value: string }) {
   return (
-    <div className="border border-ink/10 bg-paper px-3 py-2.5">
-      <p className="text-[10px] uppercase tracking-[0.15em] text-ink/35">{label}</p>
-      <p className="mt-1 text-sm leading-snug text-ink/70">{value}</p>
+    <div className="border border-ink/10 bg-paper px-2 py-2 md:px-3 md:py-2.5">
+      <p className="text-[9px] uppercase tracking-[0.1em] text-ink/35 md:text-[10px] md:tracking-[0.15em]">{label}</p>
+      <p className="mt-1 text-[12px] font-medium leading-snug text-ink/70 md:text-sm md:font-normal">{value}</p>
     </div>
   );
 }
@@ -196,33 +209,70 @@ export default async function SchedulePage() {
               <p className="font-display text-[24px] text-ink/30">{noItemsText}</p>
             </div>
           ) : (
-            <div className="divide-y divide-ink/10 border-y border-ink/10">
+            <div className="grid grid-cols-2 gap-2 md:block md:divide-y md:divide-ink/10 md:border-y md:border-ink/10">
               {timeline.map((item) => (
                 <article
                   key={`${item.kind}-${item.id}`}
-                  className={`grid gap-6 p-6 md:p-8 lg:gap-8 ${
+                  className={`grid aspect-[3/5] min-w-0 grid-rows-[36%_auto_1fr] overflow-hidden border border-ink/10 bg-white md:aspect-auto md:grid-rows-none md:gap-6 md:border-0 md:bg-transparent md:p-8 lg:gap-8 ${
                     item.image ? "lg:grid-cols-[230px_1fr_240px]" : "lg:grid-cols-[230px_1fr]"
                   }`}
                 >
-                  <div>
-                    <p className="caps text-ink/35">{item.kind === "service" ? serviceLabel : eventLabel}</p>
-                    <p className="mt-2 font-display text-[24px] leading-tight md:text-[28px]">
+                  {item.image ? (
+                    <div className="relative min-h-0 overflow-hidden bg-stone md:hidden">
+                      <MobileCardImage src={item.image} alt={item.title} />
+                    </div>
+                  ) : (
+                    <div className="relative min-h-0 overflow-hidden bg-stone md:hidden">
+                      <div className="absolute -right-5 -top-5 h-20 w-20 rounded-full bg-[#c8ddd9]/70" />
+                      <div className="absolute -bottom-8 -left-5 h-24 w-24 rounded-full bg-[#edd5cb]/70" />
+                    </div>
+                  )}
+
+                  <div className="min-w-0 px-2 pt-1.5 md:px-0 md:pt-0">
+                    <p className="text-[8px] uppercase leading-none tracking-[0.12em] text-ink/40 md:text-[10px] md:leading-normal">{item.kind === "service" ? serviceLabel : eventLabel}</p>
+                    <p className="mt-1 font-display text-[12px] font-medium leading-tight text-ink md:hidden">
+                      {fmtMobileDate(item.startsAt, lang)}
+                    </p>
+                    <p className="mt-2 hidden font-display text-[28px] leading-tight md:block">
                       {fmtDate(item.startsAt, lang)}
                     </p>
-                    <p className="mt-2 text-sm text-ink/55">
+                    <p className="mt-1 text-[11px] font-medium leading-none text-ink/60 md:mt-2 md:text-sm md:font-normal md:leading-normal">
                       {item.kind === "service"
                         ? `${isRu ? "Время" : "Time"}: ${item.timeLabel}`
                         : `${isRu ? "Начало" : "Starts"}: ${item.timeLabel}`}
                     </p>
                   </div>
 
-                  <div>
-                    <h2 className="font-display text-[28px] leading-tight md:text-[34px]">{item.title}</h2>
+                  <div className="flex min-h-0 min-w-0 flex-col px-2 pb-2 pt-1.5 md:block md:px-0 md:pb-0 md:pt-0">
+                    <h2 className="line-clamp-2 font-display text-[17px] font-medium leading-[1.05] text-ink md:line-clamp-none md:text-[34px] md:font-normal md:leading-tight">{item.title}</h2>
                     {item.description && (
-                      <p className="mt-3 text-[15px] leading-relaxed text-ink/60">{item.description}</p>
+                      <p className="mt-3 hidden text-[15px] leading-relaxed text-ink/60 md:block">{item.description}</p>
                     )}
 
-                    <div className="mt-5 grid gap-2.5 sm:grid-cols-2 xl:grid-cols-3">
+                    {(item.ageGroup || item.durationMinutes || item.price) && (
+                      <dl className="mt-2 space-y-0.5 text-[10px] leading-tight text-ink/60 md:hidden">
+                        {item.ageGroup && (
+                          <div className="flex gap-1">
+                            <dt className="text-ink/35">{isRu ? "Возраст:" : "Age:"}</dt>
+                            <dd className="font-medium text-ink/70">{item.ageGroup}</dd>
+                          </div>
+                        )}
+                        {item.durationMinutes && (
+                          <div className="flex gap-1">
+                            <dt className="text-ink/35">{isRu ? "Длительность:" : "Duration:"}</dt>
+                            <dd className="font-medium text-ink/70">{item.durationMinutes}</dd>
+                          </div>
+                        )}
+                        {item.price && (
+                          <div className="flex gap-1">
+                            <dt className="text-ink/35">{isRu ? "Стоимость:" : "Price:"}</dt>
+                            <dd className="font-medium text-ink/70">{item.price}</dd>
+                          </div>
+                        )}
+                      </dl>
+                    )}
+
+                    <div className="mt-5 hidden gap-2.5 md:grid md:grid-cols-2 xl:grid-cols-3">
                       {item.ageGroup && <Field label={isRu ? "Возраст" : "Age"} value={item.ageGroup} />}
                       {item.durationMinutes && <Field label={isRu ? "Длительность" : "Duration"} value={item.durationMinutes} />}
                       {item.price && <Field label={isRu ? "Стоимость" : "Price"} value={item.price} />}
@@ -235,7 +285,7 @@ export default async function SchedulePage() {
                       ) */}
                     </div>
 
-                    <div className="mt-5">
+                    <div className="mt-auto md:mt-5">
                       {item.kind === "service" ? (
                         <BookingModal
                           scheduleId={item.id}
@@ -254,7 +304,7 @@ export default async function SchedulePage() {
                   </div>
 
                   {item.image ? (
-                    <ScheduleImage src={item.image} alt={item.title} />
+                    <div className="hidden lg:block"><ScheduleImage src={item.image} alt={item.title} /></div>
                   ) : null}
                 </article>
               ))}

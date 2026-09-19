@@ -1,9 +1,11 @@
 import { Container } from "@/components/Container";
+import { createPageMetadata } from "@/lib/seo";
 
-export const metadata = {
+export const metadata = createPageMetadata({
   title: "Условия пользования",
-  description: "Условия пользования сайтом Арт Хаус.",
-};
+  description: "Правила и условия использования сайта художественной мастерской АртХаус.",
+  path: "/terms",
+});
 
 export default function TermsPage() {
   return (

@@ -2,11 +2,15 @@ import Image from "next/image";
 import { Container } from "../../components/Container";
 import { getLang } from "../../lib/get-lang";
 import { getT } from "../../lib/i18n";
+import { createPageMetadata } from "../../lib/seo";
 
-export const metadata = {
-  title: "О проекте",
-  description: "О художественной мастерской Арт Хаус — территории творчества для взрослых и детей.",
-};
+export const metadata = createPageMetadata({
+  title: "О творческой мастерской",
+  description: "История и философия АртХаус — художественной мастерской Ольги Смирновой для детей и взрослых в городском округе Истра.",
+  path: "/about",
+  image: "/event/2.JPG",
+  keywords: ["арт-студия Истра", "творческая мастерская"],
+});
 
 export default async function AboutPage() {
   const lang = await getLang();

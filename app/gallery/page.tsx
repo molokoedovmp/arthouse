@@ -4,13 +4,17 @@ import { GalleryFilter } from "../../components/GalleryFilter";
 import pool from "../../lib/db";
 import { getLang } from "../../lib/get-lang";
 import { getT } from "../../lib/i18n";
+import { createPageMetadata } from "../../lib/seo";
 
 export const dynamic = 'force-dynamic';
 
-export const metadata = {
-  title: "Галерея",
-  description: "Работы учеников и фотографии мероприятий художественной мастерской.",
-};
+export const metadata = createPageMetadata({
+  title: "Галерея работ учеников",
+  description: "Галерея рисунков и картин учеников, фотографии занятий и мероприятий художественной мастерской АртХаус.",
+  path: "/gallery",
+  image: "/images/gaallery.jpg",
+  keywords: ["работы учеников арт-студии", "галерея живописи"],
+});
 
 export default async function GalleryPage() {
   const lang = await getLang();
