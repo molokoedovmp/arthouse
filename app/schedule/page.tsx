@@ -178,6 +178,7 @@ export default async function SchedulePage() {
   const timeline = [...serviceItems, ...eventItems].sort(
     (a, b) => a.startsAt.getTime() - b.startsAt.getTime()
   );
+  const hasSingleCard = timeline.length === 1;
 
   return (
     <div>
@@ -209,11 +210,15 @@ export default async function SchedulePage() {
               <p className="font-display text-[24px] text-ink/30">{noItemsText}</p>
             </div>
           ) : (
-            <div className="grid grid-cols-2 gap-2 md:block md:divide-y md:divide-ink/10 md:border-y md:border-ink/10">
+            <div className={`grid gap-2 md:block md:divide-y md:divide-ink/10 md:border-y md:border-ink/10 ${hasSingleCard ? "grid-cols-1" : "grid-cols-2"}`}>
               {timeline.map((item) => (
                 <article
                   key={`${item.kind}-${item.id}`}
-                  className={`grid aspect-[3/5] min-w-0 grid-rows-[36%_auto_1fr] overflow-hidden border border-ink/10 bg-white md:aspect-auto md:grid-rows-none md:gap-6 md:border-0 md:bg-transparent md:p-8 lg:gap-8 ${
+                  className={`grid min-w-0 overflow-hidden border border-ink/10 bg-white md:aspect-auto md:grid-rows-none md:gap-6 md:border-0 md:bg-transparent md:p-8 lg:gap-8 ${
+                    hasSingleCard
+                      ? "aspect-[4/5] grid-rows-[42%_auto_1fr]"
+                      : "aspect-[3/5] grid-rows-[36%_auto_1fr]"
+                  } ${
                     item.image ? "lg:grid-cols-[230px_1fr_240px]" : "lg:grid-cols-[230px_1fr]"
                   }`}
                 >
@@ -228,45 +233,52 @@ export default async function SchedulePage() {
                     </div>
                   )}
 
-                  <div className="min-w-0 px-2 pt-1.5 md:px-0 md:pt-0">
-                    <p className="text-[8px] uppercase leading-none tracking-[0.12em] text-ink/40 md:text-[10px] md:leading-normal">{item.kind === "service" ? serviceLabel : eventLabel}</p>
-                    <p className="mt-1 font-display text-[12px] font-medium leading-tight text-ink md:hidden">
-                      {fmtMobileDate(item.startsAt, lang)}
-                    </p>
+                  <div className={`min-w-0 md:px-0 md:pt-0 ${hasSingleCard ? "px-5 pt-4" : "px-2 pt-1.5"}`}>
+                    <p className={`${hasSingleCard ? "text-[11px]" : "text-[8px]"} uppercase leading-none tracking-[0.12em] text-ink/40 md:text-[10px] md:leading-normal`}>{item.kind === "service" ? serviceLabel : eventLabel}</p>
+                    <div className={`mt-2 items-baseline justify-between gap-3 md:hidden ${hasSingleCard ? "flex" : "block"}`}>
+                      <p className={`${hasSingleCard ? "text-[18px]" : "text-[12px]"} font-display font-semibold leading-tight text-ink`}>
+                        {fmtMobileDate(item.startsAt, lang)}
+                      </p>
+                      <p className={`${hasSingleCard ? "text-[15px]" : "mt-1 text-[11px]"} shrink-0 font-medium leading-none text-ink/65`}>
+                        {item.kind === "service"
+                          ? `${isRu ? "Время" : "Time"}: ${item.timeLabel}`
+                          : `${isRu ? "Начало" : "Starts"}: ${item.timeLabel}`}
+                      </p>
+                    </div>
                     <p className="mt-2 hidden font-display text-[28px] leading-tight md:block">
                       {fmtDate(item.startsAt, lang)}
                     </p>
-                    <p className="mt-1 text-[11px] font-medium leading-none text-ink/60 md:mt-2 md:text-sm md:font-normal md:leading-normal">
+                    <p className="mt-2 hidden text-sm text-ink/55 md:block">
                       {item.kind === "service"
                         ? `${isRu ? "Время" : "Time"}: ${item.timeLabel}`
                         : `${isRu ? "Начало" : "Starts"}: ${item.timeLabel}`}
                     </p>
                   </div>
 
-                  <div className="flex min-h-0 min-w-0 flex-col px-2 pb-2 pt-1.5 md:block md:px-0 md:pb-0 md:pt-0">
-                    <h2 className="line-clamp-2 font-display text-[17px] font-medium leading-[1.05] text-ink md:line-clamp-none md:text-[34px] md:font-normal md:leading-tight">{item.title}</h2>
+                  <div className={`flex min-h-0 min-w-0 flex-col md:block md:px-0 md:pb-0 md:pt-0 ${hasSingleCard ? "px-5 pb-5 pt-4" : "px-2 pb-2 pt-1.5"}`}>
+                    <h2 className={`${hasSingleCard ? "text-[27px]" : "line-clamp-2 text-[17px]"} font-display font-semibold leading-tight text-ink md:line-clamp-none md:text-[34px] md:font-normal`}>{item.title}</h2>
                     {item.description && (
                       <p className="mt-3 hidden text-[15px] leading-relaxed text-ink/60 md:block">{item.description}</p>
                     )}
 
                     {(item.ageGroup || item.durationMinutes || item.price) && (
-                      <dl className="mt-2 space-y-0.5 text-[10px] leading-tight text-ink/60 md:hidden">
+                      <dl className={`mt-3 text-ink/60 md:hidden ${hasSingleCard ? "grid grid-cols-3 gap-3 border-y border-ink/10 py-3 text-[13px]" : "space-y-0.5 text-[10px] leading-tight"}`}>
                         {item.ageGroup && (
-                          <div className="flex gap-1">
-                            <dt className="text-ink/35">{isRu ? "Возраст:" : "Age:"}</dt>
-                            <dd className="font-medium text-ink/70">{item.ageGroup}</dd>
+                          <div className={hasSingleCard ? "min-w-0" : "flex gap-1"}>
+                            <dt className={`${hasSingleCard ? "text-[9px] uppercase tracking-[0.08em]" : ""} text-ink/35`}>{isRu ? "Возраст:" : "Age:"}</dt>
+                            <dd className={`${hasSingleCard ? "mt-1 text-[14px]" : ""} font-medium text-ink/70`}>{item.ageGroup}</dd>
                           </div>
                         )}
                         {item.durationMinutes && (
-                          <div className="flex gap-1">
-                            <dt className="text-ink/35">{isRu ? "Длительность:" : "Duration:"}</dt>
-                            <dd className="font-medium text-ink/70">{item.durationMinutes}</dd>
+                          <div className={hasSingleCard ? "min-w-0" : "flex gap-1"}>
+                            <dt className={`${hasSingleCard ? "text-[9px] uppercase tracking-[0.08em]" : ""} text-ink/35`}>{isRu ? "Длительность:" : "Duration:"}</dt>
+                            <dd className={`${hasSingleCard ? "mt-1 text-[14px]" : ""} font-medium text-ink/70`}>{item.durationMinutes}</dd>
                           </div>
                         )}
                         {item.price && (
-                          <div className="flex gap-1">
-                            <dt className="text-ink/35">{isRu ? "Стоимость:" : "Price:"}</dt>
-                            <dd className="font-medium text-ink/70">{item.price}</dd>
+                          <div className={hasSingleCard ? "min-w-0" : "flex gap-1"}>
+                            <dt className={`${hasSingleCard ? "text-[9px] uppercase tracking-[0.08em]" : ""} text-ink/35`}>{isRu ? "Стоимость:" : "Price:"}</dt>
+                            <dd className={`${hasSingleCard ? "mt-1 text-[14px]" : ""} font-medium text-ink/70`}>{item.price}</dd>
                           </div>
                         )}
                       </dl>
@@ -292,12 +304,14 @@ export default async function SchedulePage() {
                           title={item.title}
                           time={item.timeLabel}
                           availableSpots={item.availableSpots}
+                          largeOnMobile={hasSingleCard}
                         />
                       ) : (
                         <EventBookingModal
                           eventId={item.id}
                           title={item.title}
                           availableSpots={item.availableSpots}
+                          largeOnMobile={hasSingleCard}
                         />
                       )}
                     </div>

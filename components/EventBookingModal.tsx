@@ -9,11 +9,12 @@ interface Props {
   eventId: number;
   title: string;
   availableSpots: number | null; // null = безлимит
+  largeOnMobile?: boolean;
 }
 
 type State = "idle" | "open" | "loading" | "success" | "error";
 
-export function EventBookingModal({ eventId, title, availableSpots }: Props) {
+export function EventBookingModal({ eventId, title, availableSpots, largeOnMobile = false }: Props) {
   const [state, setState] = useState<State>("idle");
   const [errorMsg, setErrorMsg] = useState("");
   const [mounted, setMounted] = useState(false);
@@ -79,13 +80,13 @@ export function EventBookingModal({ eventId, title, availableSpots }: Props) {
   return (
     <>
       {full ? (
-        <span className="inline-block mt-2 border border-ink/10 px-3 py-1 text-[10px] uppercase tracking-[0.15em] text-ink/30">
+        <span className={`inline-block border border-ink/10 uppercase tracking-[0.15em] text-ink/30 ${largeOnMobile ? "mt-4 px-5 py-2.5 text-[12px] md:mt-2 md:px-3 md:py-1 md:text-[10px]" : "mt-2 px-3 py-1 text-[10px]"}`}>
           {eb.noSpots}
         </span>
       ) : (
         <button
           onClick={open}
-          className="inline-block mt-2 bg-ink px-3 py-1.5 text-[10px] uppercase tracking-[0.15em] text-white transition hover:bg-ink/80"
+          className={`inline-block bg-ink uppercase tracking-[0.15em] text-white transition hover:bg-ink/80 ${largeOnMobile ? "mt-4 px-5 py-2.5 text-[12px] md:mt-2 md:px-3 md:py-1.5 md:text-[10px]" : "mt-2 px-3 py-1.5 text-[10px]"}`}
         >
           {t.events.register}
         </button>

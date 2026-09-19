@@ -96,7 +96,7 @@ export default async function EventsPage() {
               <p className="font-display text-[24px] text-ink/25">{t.events.noItems}</p>
             </div>
           ) : (
-            <div className="grid grid-cols-2 gap-2 lg:block lg:space-y-px lg:border lg:border-ink/10">
+            <div className={`grid gap-2 lg:block lg:space-y-px lg:border lg:border-ink/10 ${events.length === 1 ? "grid-cols-1" : "grid-cols-2"}`}>
               {events.map((event) => {
                 const dt = new Date(event.event_date);
                 const booked = parseInt(event.booked) || 0;

@@ -177,7 +177,7 @@ export default async function HomePage() {
               {isRu ? "Всё расписание →" : "Full schedule →"}
             </Link>
           </div>
-          <div className="grid grid-cols-2 gap-2 p-4 md:block md:divide-y md:divide-ink/10 md:p-0">
+          <div className={`grid gap-2 p-4 md:block md:divide-y md:divide-ink/10 md:p-0 ${timeline.length === 1 ? "grid-cols-1" : "grid-cols-2"}`}>
             {timeline.map((item) => (
               <div key={item.key} className="aspect-square min-w-0 overflow-hidden border border-ink/10 bg-white md:aspect-auto md:border-0 md:bg-transparent md:px-8 md:py-5">
 
