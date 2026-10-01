@@ -1,7 +1,6 @@
 import { Container } from "../../components/Container";
 import { BookingModal } from "../../components/BookingModal";
 import { EventBookingModal } from "../../components/EventBookingModal";
-import { ScheduleImage } from "../../components/ScheduleImage";
 import pool from "../../lib/db";
 import { getLang } from "../../lib/get-lang";
 import { getT } from "../../lib/i18n";
@@ -82,15 +81,6 @@ function fmtTimeOnly(dt: Date) {
 function fmtNumberOrUnlimited(value: number | null, lang: "ru" | "en") {
   if (value === null) return lang === "ru" ? "Безлимит" : "Unlimited";
   return String(value);
-}
-
-function Field({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="border border-ink/10 bg-paper px-2 py-2 md:px-3 md:py-2.5">
-      <p className="text-[9px] uppercase tracking-[0.1em] text-ink/35 md:text-[10px] md:tracking-[0.15em]">{label}</p>
-      <p className="mt-1 text-[12px] font-medium leading-snug text-ink/70 md:text-sm md:font-normal">{value}</p>
-    </div>
-  );
 }
 
 export default async function SchedulePage() {
@@ -210,30 +200,24 @@ export default async function SchedulePage() {
               <p className="font-display text-[24px] text-ink/30">{noItemsText}</p>
             </div>
           ) : (
-            <div className={`grid gap-2 md:block md:divide-y md:divide-ink/10 md:border-y md:border-ink/10 ${hasSingleCard ? "grid-cols-1" : "grid-cols-2"}`}>
+            <div className={`grid gap-2 md:grid-cols-2 md:gap-5 xl:grid-cols-3 ${hasSingleCard ? "grid-cols-1" : "grid-cols-2"}`}>
               {timeline.map((item) => (
                 <article
                   key={`${item.kind}-${item.id}`}
-                  className={`grid min-w-0 overflow-hidden border border-ink/10 bg-white md:aspect-auto md:grid-rows-none md:gap-6 md:border-0 md:bg-transparent md:p-8 lg:gap-8 ${
-                    hasSingleCard
-                      ? "aspect-[4/5] grid-rows-[42%_auto_1fr]"
-                      : "aspect-[3/5] grid-rows-[36%_auto_1fr]"
-                  } ${
-                    item.image ? "lg:grid-cols-[230px_1fr_240px]" : "lg:grid-cols-[230px_1fr]"
-                  }`}
+                  className="flex min-w-0 flex-col border border-ink/10 bg-white"
                 >
                   {item.image ? (
-                    <div className="relative min-h-0 overflow-hidden bg-stone md:hidden">
+                    <div className="relative aspect-[4/3] w-full shrink-0 overflow-hidden bg-stone">
                       <MobileCardImage src={item.image} alt={item.title} />
                     </div>
                   ) : (
-                    <div className="relative min-h-0 overflow-hidden bg-stone md:hidden">
+                    <div className="relative aspect-[4/3] w-full shrink-0 overflow-hidden bg-stone">
                       <div className="absolute -right-5 -top-5 h-20 w-20 rounded-full bg-[#c8ddd9]/70" />
                       <div className="absolute -bottom-8 -left-5 h-24 w-24 rounded-full bg-[#edd5cb]/70" />
                     </div>
                   )}
 
-                  <div className={`min-w-0 md:px-0 md:pt-0 ${hasSingleCard ? "px-5 pt-4" : "px-2 pt-1.5"}`}>
+                  <div className={`min-w-0 md:px-5 md:pt-4 ${hasSingleCard ? "px-5 pt-4" : "px-2 pt-1.5"}`}>
                     <p className={`${hasSingleCard ? "text-[11px]" : "text-[8px]"} uppercase leading-none tracking-[0.12em] text-ink/40 md:text-[10px] md:leading-normal`}>{item.kind === "service" ? serviceLabel : eventLabel}</p>
                     <div className={`mt-2 items-baseline justify-between gap-3 md:hidden ${hasSingleCard ? "flex" : "block"}`}>
                       <p className={`${hasSingleCard ? "text-[18px]" : "text-[12px]"} font-display font-semibold leading-tight text-ink`}>
@@ -255,49 +239,36 @@ export default async function SchedulePage() {
                     </p>
                   </div>
 
-                  <div className={`flex min-h-0 min-w-0 flex-col md:block md:px-0 md:pb-0 md:pt-0 ${hasSingleCard ? "px-5 pb-5 pt-4" : "px-2 pb-2 pt-1.5"}`}>
-                    <h2 className={`${hasSingleCard ? "text-[27px]" : "line-clamp-2 text-[17px]"} font-display font-semibold leading-tight text-ink md:line-clamp-none md:text-[34px] md:font-normal`}>{item.title}</h2>
+                  <div className={`flex min-h-0 min-w-0 flex-1 flex-col md:px-5 md:pb-5 md:pt-3 ${hasSingleCard ? "px-5 pb-5 pt-4" : "px-2 pb-2 pt-1.5"}`}>
+                    <h2 className={`${hasSingleCard ? "text-[27px]" : "text-[17px]"} font-display font-semibold leading-tight text-ink md:text-[30px] md:font-normal`}>{item.title}</h2>
                     {item.description && (
-                      <p className="mt-3 hidden text-[15px] leading-relaxed text-ink/60 md:block">{item.description}</p>
+                      <p className="mt-2 text-[12px] leading-relaxed text-ink/60 md:mt-3 md:text-[15px]">{item.description}</p>
                     )}
 
                     {(item.ageGroup || item.durationMinutes || item.price) && (
-                      <dl className={`mt-3 text-ink/60 md:hidden ${hasSingleCard ? "grid grid-cols-3 gap-3 border-y border-ink/10 py-3 text-[13px]" : "space-y-0.5 text-[10px] leading-tight"}`}>
+                      <dl className={`mt-3 text-ink/60 md:grid md:grid-cols-3 md:gap-3 md:space-y-0 md:border-y md:border-ink/10 md:py-3 md:text-[13px] ${hasSingleCard ? "grid grid-cols-3 gap-3 border-y border-ink/10 py-3 text-[13px]" : "space-y-0.5 text-[10px] leading-tight"}`}>
                         {item.ageGroup && (
-                          <div className={hasSingleCard ? "min-w-0" : "flex gap-1"}>
-                            <dt className={`${hasSingleCard ? "text-[9px] uppercase tracking-[0.08em]" : ""} text-ink/35`}>{isRu ? "Возраст:" : "Age:"}</dt>
-                            <dd className={`${hasSingleCard ? "mt-1 text-[14px]" : ""} font-medium text-ink/70`}>{item.ageGroup}</dd>
+                          <div className={`${hasSingleCard ? "min-w-0" : "flex gap-1"} md:block md:min-w-0`}>
+                            <dt className={`${hasSingleCard ? "text-[9px] uppercase tracking-[0.08em]" : ""} text-ink/35 md:text-[9px] md:uppercase md:tracking-[0.08em]`}>{isRu ? "Возраст:" : "Age:"}</dt>
+                            <dd className={`${hasSingleCard ? "mt-1 text-[14px]" : ""} font-medium text-ink/70 md:mt-1 md:text-[14px]`}>{item.ageGroup}</dd>
                           </div>
                         )}
                         {item.durationMinutes && (
-                          <div className={hasSingleCard ? "min-w-0" : "flex gap-1"}>
-                            <dt className={`${hasSingleCard ? "text-[9px] uppercase tracking-[0.08em]" : ""} text-ink/35`}>{isRu ? "Длительность:" : "Duration:"}</dt>
-                            <dd className={`${hasSingleCard ? "mt-1 text-[14px]" : ""} font-medium text-ink/70`}>{item.durationMinutes}</dd>
+                          <div className={`${hasSingleCard ? "min-w-0" : "flex gap-1"} md:block md:min-w-0`}>
+                            <dt className={`${hasSingleCard ? "text-[9px] uppercase tracking-[0.08em]" : ""} text-ink/35 md:text-[9px] md:uppercase md:tracking-[0.08em]`}>{isRu ? "Длительность:" : "Duration:"}</dt>
+                            <dd className={`${hasSingleCard ? "mt-1 text-[14px]" : ""} font-medium text-ink/70 md:mt-1 md:text-[14px]`}>{item.durationMinutes}</dd>
                           </div>
                         )}
                         {item.price && (
-                          <div className={hasSingleCard ? "min-w-0" : "flex gap-1"}>
-                            <dt className={`${hasSingleCard ? "text-[9px] uppercase tracking-[0.08em]" : ""} text-ink/35`}>{isRu ? "Стоимость:" : "Price:"}</dt>
-                            <dd className={`${hasSingleCard ? "mt-1 text-[14px]" : ""} font-medium text-ink/70`}>{item.price}</dd>
+                          <div className={`${hasSingleCard ? "min-w-0" : "flex gap-1"} md:block md:min-w-0`}>
+                            <dt className={`${hasSingleCard ? "text-[9px] uppercase tracking-[0.08em]" : ""} text-ink/35 md:text-[9px] md:uppercase md:tracking-[0.08em]`}>{isRu ? "Стоимость:" : "Price:"}</dt>
+                            <dd className={`${hasSingleCard ? "mt-1 text-[14px]" : ""} font-medium text-ink/70 md:mt-1 md:text-[14px]`}>{item.price}</dd>
                           </div>
                         )}
                       </dl>
                     )}
 
-                    <div className="mt-5 hidden gap-2.5 md:grid md:grid-cols-2 xl:grid-cols-3">
-                      {item.ageGroup && <Field label={isRu ? "Возраст" : "Age"} value={item.ageGroup} />}
-                      {item.durationMinutes && <Field label={isRu ? "Длительность" : "Duration"} value={item.durationMinutes} />}
-                      {item.price && <Field label={isRu ? "Стоимость" : "Price"} value={item.price} />}
-                      {/* item.maxParticipants !== null && (
-                        <>
-                          <Field label={isRu ? "Мест всего" : "Total spots"} value={String(item.maxParticipants)} />
-                          <Field label={isRu ? "Забронировано" : "Booked"} value={String(item.booked)} />
-                          <Field label={isRu ? "Свободно" : "Available"} value={fmtNumberOrUnlimited(item.availableSpots, lang)} />
-                        </>
-                      ) */}
-                    </div>
-
-                    <div className="mt-auto md:mt-5">
+                    <div className="mt-auto pt-3 md:pt-5">
                       {item.kind === "service" ? (
                         <BookingModal
                           scheduleId={item.id}
@@ -317,9 +288,6 @@ export default async function SchedulePage() {
                     </div>
                   </div>
 
-                  {item.image ? (
-                    <div className="hidden lg:block"><ScheduleImage src={item.image} alt={item.title} /></div>
-                  ) : null}
                 </article>
               ))}
             </div>

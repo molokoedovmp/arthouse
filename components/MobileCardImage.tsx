@@ -24,7 +24,7 @@ export function MobileCardImage({ src, alt }: MobileCardImageProps) {
           src={src}
           alt={alt}
           fill
-          sizes="(max-width: 767px) 50vw, 1px"
+          sizes="(max-width: 767px) 50vw, (max-width: 1279px) 50vw, 33vw"
           className="object-cover transition-transform duration-500 group-hover:scale-105"
         />
         <span className="absolute bottom-1.5 right-1.5 flex h-7 w-7 items-center justify-center bg-black/55 text-white backdrop-blur-sm">

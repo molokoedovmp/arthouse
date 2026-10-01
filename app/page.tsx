@@ -159,14 +159,16 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ── Promo banner ── */}
-      <section className="border-b border-ink/10">
-        <div className="px-4 py-6 text-center">
-          <p className="font-display whitespace-nowrap text-[clamp(18px,4.5vw,34px)] leading-none text-ink">
-            {isRu ? "Арт вечеринки «Лето. Живопись. Prosecco»" : "Art parties «Summer. Painting. Prosecco»"}
-          </p>
-        </div>
-      </section>
+      {/*
+        Место для будущей промофразы.
+        <section className="border-b border-ink/10">
+          <div className="px-4 py-6 text-center">
+            <p className="font-display whitespace-nowrap text-[clamp(18px,4.5vw,34px)] leading-none text-ink">
+              Текст будущего анонса
+            </p>
+          </div>
+        </section>
+      */}
 
       {/* ── Расписание списком (только если есть события) ── */}
       {timeline.length > 0 && (
