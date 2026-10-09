@@ -5,6 +5,7 @@ export const contactInfo = {
   websiteLabel: "art-territory.ru",
   postalAddress:
     "Московская область, г. о. Истра, д. Крючково, ул. Вишневая, 17, тц Ауха, 3 этаж, к. 3.9",
-  telegram: "https://t.me/arthausterritory",
+  telegram: "https://t.me/ArtHausIstra",
+  instagram: "https://www.instagram.com/bushumbart/",
   vk: "https://vk.ru/arthausterritory",
 };

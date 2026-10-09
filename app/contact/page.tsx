@@ -82,6 +82,17 @@ export default async function ContactPage() {
               </a>
             </div>
             <div>
+              <p className={labelClass}>Instagram</p>
+              <a
+                href={contactInfo.instagram}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={linkValueClass}
+              >
+                @bushumbart
+              </a>
+            </div>
+            <div>
               <p className={labelClass}>{c.schedule}</p>
               <p className={textValueClass}>{c.scheduleValue}</p>
             </div>

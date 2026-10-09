@@ -15,6 +15,7 @@ const contacts = [
   { label: "Сайт", href: contactInfo.website, external: true },
   { label: "ВКонтакте", href: contactInfo.vk, external: true },
   { label: "Telegram", href: contactInfo.telegram, external: true },
+  { label: "Instagram", href: contactInfo.instagram, external: true },
 ];
 
 export function Footer() {

@@ -89,7 +89,8 @@ export default async function RootLayout({
                 streetAddress: "ул. Вишневая, 17, ТЦ Ауха, 3 этаж, к. 3.9",
               },
               sameAs: [
-                "https://t.me/arthausterritory",
+                "https://t.me/ArtHausIstra",
+                "https://www.instagram.com/bushumbart/",
                 "https://vk.ru/arthausterritory",
               ],
             }).replace(/</g, "\\u003c"),
