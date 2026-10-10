@@ -8,7 +8,6 @@ import { ServicesCarousel, type ServiceCard } from "@/components/ServicesCarouse
 import { getLang } from "../lib/get-lang";
 import { getT } from "../lib/i18n";
 import { createPageMetadata } from "../lib/seo";
-import { MobileCardImage } from "../components/MobileCardImage";
 
 export const revalidate = 60; // кеш 60 секунд, не пересобирает на каждый запрос
 
@@ -179,44 +178,34 @@ export default async function HomePage() {
               {isRu ? "Всё расписание →" : "Full schedule →"}
             </Link>
           </div>
-          <div className={`grid gap-2 p-4 md:block md:divide-y md:divide-ink/10 md:p-0 ${timeline.length === 1 ? "grid-cols-1" : "grid-cols-2"}`}>
+          <div className="divide-y divide-ink/10">
             {timeline.map((item) => (
-              <div key={item.key} className="aspect-square min-w-0 overflow-hidden border border-ink/10 bg-white md:aspect-auto md:border-0 md:bg-transparent md:px-8 md:py-5">
+              <div key={item.key} className="px-6 py-4 md:px-8 md:py-5">
 
                 {/* Мобильная версия */}
-                {item.image ? (
-                  <div className="relative h-[48%] w-full overflow-hidden bg-stone md:hidden">
-                    <MobileCardImage src={item.image} alt={item.title} />
-                  </div>
-                ) : (
-                  <div className="relative h-[48%] overflow-hidden bg-stone md:hidden">
-                    <div className="absolute -right-5 -top-5 h-20 w-20 rounded-full bg-[#c8ddd9]/70" />
-                    <div className="absolute -bottom-8 -left-5 h-24 w-24 rounded-full bg-[#edd5cb]/70" />
-                  </div>
-                )}
-                <div className="flex h-[52%] min-w-0 flex-col p-2 md:hidden">
-                  <div className="min-w-0">
+                <div className="grid min-w-0 grid-cols-[76px_1fr] gap-x-4 md:hidden">
+                  <div>
                     <span className={`text-[9px] uppercase tracking-[0.14em] font-medium ${item.kind === "event" ? "text-accent" : "text-ink/30"}`}>
                       {item.kind === "event" ? (isRu ? "Анонс" : "Event") : (isRu ? "Занятие" : "Class")}
                     </span>
-                    <p className="mt-1 text-[10px] leading-tight text-ink/45">
-                      {fmtDate(item.date, isRu)}, {fmtWeekday(item.date, isRu)}, {fmtTime(item.date)}
+                    <p className="mt-1 font-display text-[15px] font-medium leading-tight text-ink/75">
+                      {fmtDate(item.date, isRu)}
                     </p>
-                    <p className="mt-1 line-clamp-2 font-display text-[15px] leading-[1.05] text-ink">{item.title}</p>
+                    <p className="mt-1 text-[10px] leading-tight text-ink/40">
+                      {fmtWeekday(item.date, isRu)}, {fmtTime(item.date)}
+                    </p>
                   </div>
-                  <div className="mt-auto flex min-w-0 gap-2 border-t border-ink/10 pt-1">
-                    {item.price && (
-                      <div className="min-w-0 flex-1">
-                        <p className="text-[9px] uppercase tracking-[0.1em] text-ink/30">{isRu ? "Цена" : "Price"}</p>
-                        <p className="truncate text-[11px] text-ink/70">{item.price}</p>
-                      </div>
-                    )}
-                    {item.ageGroup && (
-                      <div className="min-w-0 flex-1 text-right">
-                        <p className="text-[9px] uppercase tracking-[0.1em] text-ink/30">{isRu ? "Возраст" : "Age"}</p>
-                        <p className="truncate text-[11px] text-ink/70">{item.ageGroup}</p>
-                      </div>
-                    )}
+                  <div className="min-w-0">
+                    <p className="font-display text-[19px] leading-snug text-ink">{item.title}</p>
+                    <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-ink/55">
+                      {item.price && <span>{isRu ? "Цена" : "Price"}: {item.price}</span>}
+                      {item.ageGroup && <span>{isRu ? "Возраст" : "Age"}: {item.ageGroup}</span>}
+                      {item.available !== null && (
+                        <span className={item.isFull ? "text-red-400" : ""}>
+                          {isRu ? "Мест" : "Spots"}: {item.isFull ? (isRu ? "Нет" : "Full") : item.available}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
 
